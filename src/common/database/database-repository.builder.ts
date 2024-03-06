@@ -7,6 +7,7 @@ import {
   Transaction,
   Includeable,
 } from 'sequelize';
+import { PaginationRes } from '../paginator/paginator.types';
 
 export function buildRepository(Model: MyModelStatic): any {
   @Global()
@@ -42,6 +43,30 @@ export function buildRepository(Model: MyModelStatic): any {
         ...(order && { order }),
         ...(attributes && { attributes }),
       });
+    }
+    async findPaginated(
+      where: WhereOptions,
+      sort: any,
+      page: number,
+      limit: number,
+      include: Includeable[],
+    ): Promise<PaginationRes<MyModel>> {
+      return await (Model as MyModelStatic & { paginate: any }).paginate(
+        where,
+        sort,
+        page,
+        limit,
+        include,
+      );
+    }
+    async findPaginatedManually(
+      items: MyModel[],
+      page: number,
+      limit: number,
+    ): Promise<PaginationRes<MyModel>> {
+      return await (
+        Model as MyModelStatic & { paginateManually: any }
+      ).paginateManually(items, page, limit);
     }
     async sumField(
       field: keyof MyModel,

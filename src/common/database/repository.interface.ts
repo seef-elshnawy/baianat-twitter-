@@ -1,4 +1,5 @@
 import { Includeable, Transaction, WhereOptions } from 'sequelize';
+import { PaginationRes } from '../paginator/paginator.types';
 
 export interface IRepository<T> {
   findOne(
@@ -12,6 +13,18 @@ export interface IRepository<T> {
     sort?: any,
     attributes?: string[],
   ): Promise<T[]>;
+  findPaginated(
+    where : WhereOptions,
+    sort : any,
+    page : number,
+    limit : number,
+    include : Includeable[]
+  ): Promise<PaginationRes<T>>
+  findPaginatedManually(
+    items : T[],
+    page : number,
+    limit : number
+  ): Promise<PaginationRes<T>>
   sumField(
     field: keyof T,
     where: WhereOptions,
