@@ -10,12 +10,21 @@ import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { BaseHttpException } from 'src/common/exception/base-http.error';
 import { ErrorCodeEnum } from 'src/common/exception/error-code.enum';
+import { IsPhoneExistInput } from 'src/user/dto/is-phone-exist';
+import { UserVerificationCode } from 'src/user/entities/user-verification-code.entity';
+import { IsUserWithVerificationCodeExistInput } from './dto/is-user-with-verification-exist';
+import { UserService } from 'src/user/Service/user.service';
+import { UserVerificationCodeService } from 'src/user/Service/user-verification-code.service';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     @Inject(Repository.UserRepository)
     private readonly userRepo: IRepository<User>,
+    @Inject(Repository.UserVerificationCodeRepository)
+    private readonly userVerificationCodesRepo: IRepository<UserVerificationCode>,
+    private userService: UserService,
+    private userVerificationCodeService: UserVerificationCodeService,
   ) {}
 
   generateAuthToken(id: string): string {
@@ -26,8 +35,27 @@ export class AuthService {
     if (!isMatched)
       throw new BaseHttpException(ErrorCodeEnum.INCORRECT_PHONE_OR_PASSWORD);
   }
-  appendAuthTokenToUser(user:User){
-    return Object.assign(user,{token:this.generateAuthToken(user.id)})
+  appendAuthTokenToUser(user: User) {
+    return Object.assign(user, { token: this.generateAuthToken(user.id) });
+  }
+  async IsVerifiedPhoneExist(input: IsPhoneExistInput) {
+    const user = await this.userRepo.findOne({
+      where: { VerifiedPhone: input.phone },
+    });
+    return !!user;
+  }
+  async userByValidVerificationCodeOrError(
+    input: IsUserWithVerificationCodeExistInput,
+  ): Promise<User> {
+    const user = await this.userService.userByNotVerifiedOrVerifiedNumber(
+      input.phone,
+    );
+    this.userVerificationCodeService.validVerificationCodeOrError({
+      user,
+      useCase: input.useCase,
+      verificationCode: input.code,
+    });
+    return user;
   }
   create(createAuthInput: CreateAuthInput) {
     return 'This action adds a new auth';

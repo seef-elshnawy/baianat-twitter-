@@ -3,6 +3,8 @@ import {
   AllowNull,
   Column,
   DataType,
+  Default,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -12,6 +14,9 @@ import {
   manualPaginated,
   paginate,
 } from 'src/common/paginator/paginator.service';
+import { GenderEnum } from '../user.enum';
+import { getCoulmnEnum } from 'src/common/utils/coulmnEnum';
+import { UserVerificationCode } from './user-verification-code.entity';
 
 @ObjectType()
 @Table({ tableName: 'User', timestamps: true })
@@ -64,6 +69,35 @@ export class User extends Model {
   @AllowNull(true)
   @Column
   password: string;
+
+  @Default(GenderEnum.MALE)
+  @AllowNull(false)
+  @Column({ type: getCoulmnEnum(GenderEnum) })
+  @Field(() => GenderEnum)
+  gender: GenderEnum;
+
+  @AllowNull(true)
+  @Column({ type: DataType.DATE })
+  birthDate?: Date;
+
+  @AllowNull(false)
+  @Column
+  @Field()
+  country: string;
+
+  @AllowNull(false)
+  @Column({ type: DataType.TEXT })
+  @Field({ nullable: true })
+  profilePicture: string;
+
+  @HasMany(() => UserVerificationCode)
+  userVerificationCode?: UserVerificationCode[];
+
+  @Default(false)
+  @AllowNull(false)
+  @Column
+  @Field()
+  isBlocked: boolean;
 
   static async paginate(
     filter = {},

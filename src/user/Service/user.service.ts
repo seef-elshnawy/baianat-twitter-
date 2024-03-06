@@ -7,6 +7,7 @@ import { Repository } from 'src/common/database/database-repository.enum';
 import { UserBoardInput } from '../dto/user-board.filter';
 import { BaseHttpException } from 'src/common/exception/base-http.error';
 import { ErrorCodeEnum } from 'src/common/exception/error-code.enum';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class UserService {
@@ -16,8 +17,17 @@ export class UserService {
   ) {}
   async userOrError(input: UserBoardInput) {
     const user = await this.userRepo.findOne({ id: input.userId });
-    if (!user) throw new BaseHttpException(ErrorCodeEnum.USER_DOES_NOT_EXIST)
-    return user
+    if (!user) throw new BaseHttpException(ErrorCodeEnum.USER_DOES_NOT_EXIST);
+    return user;
+  }
+  async userByNotVerifiedOrVerifiedNumber(phone: string) {
+    const user = this.userRepo.findOne({
+      where: {
+        [Op.or]: [{ VerifiedPhone: phone }, { notVerifiedPhone: phone }],
+      },
+    });
+    if (!user) throw new BaseHttpException(ErrorCodeEnum.USER_DOES_NOT_EXIST);
+    return user;
   }
   create(createUserInput: CreateUserInput) {
     return 'This action adds a new user';

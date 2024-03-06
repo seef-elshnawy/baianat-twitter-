@@ -1,5 +1,4 @@
-
-
-export enum Repository{
-    UserRepository="UserRepository"
+export enum Repository {
+  UserRepository = 'UserRepository',
+  UserVerificationCodeRepository = 'UserVerificationCodeRepository',
 }
