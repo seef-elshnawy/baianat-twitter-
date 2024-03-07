@@ -16,3 +16,8 @@ export interface DeleteVerificationCodeAndUpdateUserModelInput {
   user: User;
   useCase: UserVerificationCodeUseCaseEnum;
 }
+
+export interface LongLatTransformerInput {
+  lat: number;
+  long: number;
+}

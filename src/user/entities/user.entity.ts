@@ -15,10 +15,11 @@ import {
   manualPaginated,
   paginate,
 } from 'src/common/paginator/paginator.service';
-import { GenderEnum } from '../user.enum';
+import { GenderEnum, langEnum } from '../user.enum';
 import { getCoulmnEnum } from 'src/common/utils/coulmnEnum';
 import { UserVerificationCode } from './user-verification-code.entity';
 import { SecurityGroup } from 'src/security-group/entities/security-group.entity';
+import { LocationType } from '../user.type';
 
 @ObjectType()
 @Table({ tableName: 'User', timestamps: true })
@@ -54,6 +55,10 @@ export class User extends Model {
   slag: string;
 
   @AllowNull(true)
+  @Column({ type: DataType.GEOMETRY('Point') })
+  location: LocationType;
+
+  @AllowNull(true)
   @Column
   notVerifiedPhone?: string;
 
@@ -87,10 +92,16 @@ export class User extends Model {
   @Field()
   country: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({ type: DataType.TEXT })
   @Field({ nullable: true })
   profilePicture?: string;
+
+  @Default(langEnum.EN)
+  @AllowNull(false)
+  @Column({ type: getCoulmnEnum(langEnum) })
+  @Field(() => langEnum)
+  favLang: langEnum;
 
   @HasMany(() => UserVerificationCode)
   userVerificationCode?: UserVerificationCode[];
@@ -98,6 +109,12 @@ export class User extends Model {
   @BelongsTo(() => SecurityGroup)
   @Field(() => SecurityGroup, { nullable: true })
   securityGroupId?: SecurityGroup;
+
+  @Unique
+  @AllowNull(false)
+  @Column({ type: DataType.STRING })
+  @Field()
+  email: string;
 
   @Default(false)
   @AllowNull(false)

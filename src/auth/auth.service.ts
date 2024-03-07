@@ -15,6 +15,9 @@ import { UserVerificationCode } from 'src/user/entities/user-verification-code.e
 import { IsUserWithVerificationCodeExistInput } from './dto/is-user-with-verification-exist';
 import { UserService } from 'src/user/Service/user.service';
 import { UserVerificationCodeService } from 'src/user/Service/user-verification-code.service';
+import { RegisterInput } from 'src/user/dto/register.input';
+import { langEnum } from 'src/user/user.enum';
+import { UserTransformer } from 'src/user/transformer/user.transformer';
 @Injectable()
 export class AuthService {
   constructor(
@@ -25,6 +28,7 @@ export class AuthService {
     private readonly userVerificationCodesRepo: IRepository<UserVerificationCode>,
     private userService: UserService,
     private userVerificationCodeService: UserVerificationCodeService,
+    private userTransformer: UserTransformer,
   ) {}
 
   generateAuthToken(id: string): string {
@@ -47,7 +51,7 @@ export class AuthService {
   async userByValidVerificationCodeOrError(
     input: IsUserWithVerificationCodeExistInput,
   ): Promise<User> {
-    const user = await this.userService.userByNotVerifiedOrVerifiedNumber(
+    const user = await this.userService.userByNotVerifiedOrVerifiedPhoneOrError(
       input.phone,
     );
     this.userVerificationCodeService.validVerificationCodeOrError({
@@ -57,23 +61,15 @@ export class AuthService {
     });
     return user;
   }
-  create(createAuthInput: CreateAuthInput) {
-    return 'This action adds a new auth';
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthInput: UpdateAuthInput) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async register(input: RegisterInput, lang: langEnum) {
+    await this.userService.errorIfUserWithVerifiedPhoneExists(input.phone);
+    await this.userService.deleteDuplicatedUsersAtNotVerifiedPhone(input.phone);
+    await this.userService.deleteDuplicatedUsersAtEmailsIfPhoneNotVerifiedYet(
+      input.email,
+    );
+    await this.userService.errorIfUserWithEmailExists(input.email);
+    const transformeredInput =
+      await this.userTransformer.registerAsUserInputTransformer(input, lang);
+    return await this.userRepo.createOne({ ...transformeredInput });
   }
 }
