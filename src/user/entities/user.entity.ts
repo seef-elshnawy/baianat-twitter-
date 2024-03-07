@@ -1,6 +1,7 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 import {
   AllowNull,
+  BelongsTo,
   Column,
   DataType,
   Default,
@@ -17,6 +18,7 @@ import {
 import { GenderEnum } from '../user.enum';
 import { getCoulmnEnum } from 'src/common/utils/coulmnEnum';
 import { UserVerificationCode } from './user-verification-code.entity';
+import { SecurityGroup } from 'src/security-group/entities/security-group.entity';
 
 @ObjectType()
 @Table({ tableName: 'User', timestamps: true })
@@ -88,10 +90,14 @@ export class User extends Model {
   @AllowNull(false)
   @Column({ type: DataType.TEXT })
   @Field({ nullable: true })
-  profilePicture: string;
+  profilePicture?: string;
 
   @HasMany(() => UserVerificationCode)
   userVerificationCode?: UserVerificationCode[];
+
+  @BelongsTo(() => SecurityGroup)
+  @Field(() => SecurityGroup, { nullable: true })
+  securityGroupId?: SecurityGroup;
 
   @Default(false)
   @AllowNull(false)

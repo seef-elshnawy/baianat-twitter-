@@ -8,13 +8,40 @@ import { UserBoardInput } from '../dto/user-board.filter';
 import { BaseHttpException } from 'src/common/exception/base-http.error';
 import { ErrorCodeEnum } from 'src/common/exception/error-code.enum';
 import { Op } from 'sequelize';
+import { PaginationRes } from 'src/common/paginator/paginator.types';
+import { UserBoardFilter } from '../dto/userboard.input';
+import { PaginatorInput } from 'src/common/paginator/paginator.input';
+import { HelpService } from 'src/common/utils/helper.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject(Repository.UserRepository)
     private readonly userRepo: IRepository<User>,
+    private helper: HelpService
   ) {}
+  async usersBoard(
+    filter:UserBoardFilter = {},
+    paginate: PaginatorInput = {},
+    currentUserId: string
+  ):Promise<PaginationRes<User>>{
+    return await this.userRepo.findPaginated(
+      {
+        id : {[Op.ne] : currentUserId},
+        ...(filter.isBlocked !== undefined && {isBlocked:filter.isBlocked}),
+        ...(filter.gender && {gender:filter.gender}),
+        ...(filter.searchKey && {
+            [Op.or]:[
+              {fullName: {[Op.iLike]: `%${this.helper.trimAllSpaces(filter.searchKey)}%`}},
+              {VerifiedPhone:{[Op.iLike]: `%${filter.searchKey}%`}}
+            ]
+        })
+      },
+      '-createdAt',
+      paginate.page,
+      paginate.limit
+    )
+  }
   async userOrError(input: UserBoardInput) {
     const user = await this.userRepo.findOne({ id: input.userId });
     if (!user) throw new BaseHttpException(ErrorCodeEnum.USER_DOES_NOT_EXIST);

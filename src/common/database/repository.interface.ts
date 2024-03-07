@@ -14,23 +14,23 @@ export interface IRepository<T> {
     attributes?: string[],
   ): Promise<T[]>;
   findPaginated(
-    where : WhereOptions,
-    sort : any,
-    page : number,
-    limit : number,
-    include : Includeable[]
-  ): Promise<PaginationRes<T>>
+    where: WhereOptions,
+    sort: any,
+    page: number,
+    limit: number,
+    include?: Includeable[],
+  ): Promise<PaginationRes<T>>;
   findPaginatedManually(
-    items : T[],
-    page : number,
-    limit : number
-  ): Promise<PaginationRes<T>>
+    items: T[],
+    page: number,
+    limit: number,
+  ): Promise<PaginationRes<T>>;
   sumField(
     field: keyof T,
     where: WhereOptions,
     transaction?: Transaction,
   ): Promise<number>;
-  createOne(input: object, transaction: Transaction): Promise<T>;
+  createOne(input: object, transaction?: Transaction): Promise<T>;
   Bulkcreate(item: Array<Object>): Promise<T[]>;
   findOneOrCreate(where: WhereOptions, input: object): Promise<T>;
   updateOneFromExistingModel(

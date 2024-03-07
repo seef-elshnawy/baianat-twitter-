@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { buildRepository } from './common/database/database-repository.builder';
 import { User } from './user/entities/user.entity';
 import { DatabaseModule } from './common/database/database.module';
+import { SecurityGroupModule } from './security-group/security-group.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { DatabaseModule } from './common/database/database.module';
         };
       },
     }),
+    SecurityGroupModule,
   ],
 })
 export class AppModule {}
