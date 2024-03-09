@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { SequelizeOptions } from 'sequelize-typescript';
+import { model } from './database.model';
 
 export const config = (configService: ConfigService) => {
   return <SequelizeOptions>{
@@ -17,6 +18,7 @@ export const config = (configService: ConfigService) => {
         min:0,
         acquire: 30000,
         idle: 10000
-    }
+    },
+    models:model
   };
 };

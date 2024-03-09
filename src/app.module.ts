@@ -6,7 +6,7 @@ import { UserModule } from './user/user.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { buildRepository } from './common/database/database-repository.builder';
 import { User } from './user/entities/user.entity';
 import { DatabaseModule } from './common/database/database.module';
@@ -14,10 +14,11 @@ import { SecurityGroupModule } from './security-group/security-group.module';
 
 @Module({
   imports: [
-    AuthModule,
-    UserModule,
-    TweetModule,
+    ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
+    UserModule,
+    AuthModule,
+    TweetModule,
     CommonModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,

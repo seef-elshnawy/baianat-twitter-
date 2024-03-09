@@ -25,8 +25,8 @@ export class UserVerificationCode extends Model {
   id: string;
 
   @Default(UserVerificationCodeUseCaseEnum.PASSWORD_RESET)
-  @Column(getCoulmnEnum(UserVerificationCodeUseCaseEnum))
   @AllowNull(false)
+  @Column(getCoulmnEnum(UserVerificationCodeUseCaseEnum))
   useCase: UserVerificationCodeUseCaseEnum;
 
   @AllowNull(false)

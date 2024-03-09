@@ -24,9 +24,10 @@ export class SecurityGroup extends Model {
   @Field(() => ID)
   id: string;
 
+  
   @Unique
-  @Column
   @AllowNull(false)
+  @Column
   @Field()
   groupName: string;
 

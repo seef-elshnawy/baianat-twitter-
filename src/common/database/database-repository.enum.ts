@@ -1,5 +1,5 @@
 export enum Repository {
-  UserRepository = 'UserRepository',
-  UserVerificationCodeRepository = 'UserVerificationCodeRepository',
-  SecurityGroupRepository = 'SecurityGroupRepository',
+  UserRepository = 'UsersRepository',
+  UserVerificationCodeRepository = 'UserVerificationCodesRepository',
+  SecurityGroupRepository = 'SecurityGroupsRepository',
 }

@@ -5,6 +5,7 @@ import {
   Column,
   DataType,
   Default,
+  ForeignKey,
   HasMany,
   Model,
   PrimaryKey,
@@ -19,7 +20,6 @@ import { GenderEnum, langEnum } from '../user.enum';
 import { getCoulmnEnum } from 'src/common/utils/coulmnEnum';
 import { UserVerificationCode } from './user-verification-code.entity';
 import { SecurityGroup } from 'src/security-group/entities/security-group.entity';
-import { LocationType } from '../user.type';
 
 @ObjectType()
 @Table({ tableName: 'User', timestamps: true })
@@ -53,10 +53,6 @@ export class User extends Model {
   @Unique
   @Column
   slag: string;
-
-  @AllowNull(true)
-  @Column({ type: DataType.GEOMETRY('Point') })
-  location: LocationType;
 
   @AllowNull(true)
   @Column
@@ -105,6 +101,11 @@ export class User extends Model {
 
   @HasMany(() => UserVerificationCode)
   userVerificationCode?: UserVerificationCode[];
+
+  @ForeignKey(() => SecurityGroup)
+  @AllowNull(true)
+  @Column({ type: DataType.UUID, onDelete: 'SET NULL', onUpdate:'SET NULL' })
+  sucurityGroupId: string
 
   @BelongsTo(() => SecurityGroup)
   @Field(() => SecurityGroup, { nullable: true })
