@@ -11,6 +11,8 @@ import { buildRepository } from './common/database/database-repository.builder';
 import { User } from './user/entities/user.entity';
 import { DatabaseModule } from './common/database/database.module';
 import { SecurityGroupModule } from './security-group/security-group.module';
+import { ContextModule } from './context/context.module';
+import { GqlConfigService } from './common/graphql/graphql.provider';
 
 @Module({
   imports: [
@@ -22,20 +24,8 @@ import { SecurityGroupModule } from './security-group/security-group.module';
     CommonModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      useFactory: () => {
-        return {
-          autoSchemaFile: true,
-          playground: {
-            settings: {
-              'request.credentials': 'include',
-            },
-          },
-          installSubscriptionHandlers: true,
-          context: ({ req }) => ({
-            req,
-          }),
-        };
-      },
+      useClass: GqlConfigService,
+      imports: [ContextModule],
     }),
     SecurityGroupModule,
   ],

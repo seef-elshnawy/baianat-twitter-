@@ -104,12 +104,12 @@ export class User extends Model {
 
   @ForeignKey(() => SecurityGroup)
   @AllowNull(true)
-  @Column({ type: DataType.UUID, onDelete: 'SET NULL', onUpdate:'SET NULL' })
-  sucurityGroupId: string
+  @Column({ type: DataType.UUID, onDelete: 'SET NULL', onUpdate: 'SET NULL' })
+  sucurityGroupId: string;
 
   @BelongsTo(() => SecurityGroup)
   @Field(() => SecurityGroup, { nullable: true })
-  securityGroupId?: SecurityGroup;
+  securityGroup?: SecurityGroup;
 
   @Unique
   @AllowNull(false)
