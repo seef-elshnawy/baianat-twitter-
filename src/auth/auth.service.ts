@@ -1,7 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateAuthInput } from './dto/create-auth.input';
-import { UpdateAuthInput } from './dto/update-auth.input';
-import { InjectModel } from '@nestjs/sequelize';
 import { Repository } from 'src/common/database/database-repository.enum';
 import { IRepository } from 'src/common/database/repository.interface';
 import { User } from 'src/user/entities/user.entity';
@@ -19,8 +16,8 @@ import { RegisterInput } from 'src/user/dto/register.input';
 import { UserVerificationCodeUseCaseEnum, langEnum } from 'src/user/user.enum';
 import { UserTransformer } from 'src/user/transformer/user.transformer';
 import { MailService } from 'src/mail/mail.service';
-import { UserValideOtp } from 'src/user/dto/user.signin';
-import { Op } from 'sequelize';
+import { UserValideOtp } from 'src/user/dto/user.valide-otp';
+import { UserSignIn } from 'src/user/dto/user.signin';
 
 @Injectable()
 export class AuthService {
@@ -109,5 +106,11 @@ export class AuthService {
       );
       return true;
     }
+  }
+
+  async signInWithEmailAndPassword(input: UserSignIn) {
+    const user = await this.userRepo.findOne({ VerifiedEmail: input.email });
+    await this.userService.validePassworOrError(user.password, input.password);
+    return this.generateAuthToken(user.id);
   }
 }

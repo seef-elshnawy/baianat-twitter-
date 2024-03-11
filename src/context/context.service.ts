@@ -38,7 +38,7 @@ export class ContextService implements IContextAuthService {
     const token = this.getAuth(req);
     if (!token) return null;
     let { userId } = <authTokenPayload>(
-      (<unknown>jwt.sign(token, this.config.get('JWT_SECRET')))
+      (<unknown>jwt.verify(token, this.config.get('JWT_SECRET')))
     );
     const user = await this.userRepo.findOne({ id: userId }, [SecurityGroup]);
     return user ? (user.toJSON() as User) : null;

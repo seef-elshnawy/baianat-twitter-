@@ -1,9 +1,9 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType } from '@nestjs/graphql';
 import { IsEmail, IsMobilePhone, IsNotEmpty, IsString } from 'class-validator';
 import { ErrorCodeEnum } from 'src/common/exception/error-code.enum';
 
 @InputType()
-export class UserSignIn {
+export class UserValideOtp {
   @IsMobilePhone(null, null, {
     message: ErrorCodeEnum[ErrorCodeEnum.INVALID_PHONE_NUMBER],
   })
@@ -19,5 +19,5 @@ export class UserSignIn {
   @IsString()
   @IsNotEmpty()
   @Field()
-  password: string;
+  otp: string;
 }

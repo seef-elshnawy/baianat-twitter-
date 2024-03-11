@@ -9,11 +9,65 @@ type SecurityGroup {
   premissons: [String!]!
 }
 
+type User {
+  id: String!
+  firstName: String!
+  lastName: String!
+  fullName: String!
+  slag: String!
+  VerifiedPhone: String!
+  bio: String
+  gender: GenderEnum!
+  country: String!
+  profilePicture: String
+  favLang: langEnum!
+  securityGroup: SecurityGroup
+  notVerifiedEmail: String!
+  VerifiedEmail: String!
+  isBlocked: Boolean!
+}
+
+enum GenderEnum {
+  MALE
+  FEMALE
+}
+
+enum langEnum {
+  AR
+  EN
+}
+
+type PageInfo {
+  page: Int
+  limit: Int!
+  hasNext: Boolean!
+  hasBefore: Boolean!
+}
+
+type GqlStringResponse {
+  data: String
+  message: String!
+  code: Int!
+  success: Boolean!
+}
+
 type GqlBooleanResponse {
   data: Boolean
   message: String!
   code: Int!
   success: Boolean!
+}
+
+type GqlUserResponse {
+  data: User
+  message: String!
+  code: Int!
+  success: Boolean!
+}
+
+type GqlUsersPagination {
+  items: [User]
+  pageInfo: PageInfo!
 }
 
 type Tweet {
@@ -24,12 +78,14 @@ type Tweet {
 scalar Timestamp
 
 type Query {
+  getMe: GqlUserResponse!
   tweet(id: Int!): Tweet!
 }
 
 type Mutation {
   register(input: RegisterInput!): JSON!
   validateOtp(input: UserValideOtp!): GqlBooleanResponse!
+  signInUsingEmail(input: UserSignIn!): GqlStringResponse!
   createTweet(createTweetInput: CreateTweetInput!): Tweet!
   updateTweet(updateTweetInput: UpdateTweetInput!): Tweet!
   removeTweet(id: Int!): Tweet!
@@ -55,6 +111,12 @@ input UserValideOtp {
   phone: String
   email: String
   otp: String!
+}
+
+input UserSignIn {
+  phone: String
+  email: String
+  password: String!
 }
 
 input CreateTweetInput {

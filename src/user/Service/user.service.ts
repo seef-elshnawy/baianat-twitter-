@@ -135,4 +135,9 @@ export class UserService {
       if (user && !user.VerifiedPhone) await user.destroy({ force: true });
     }
   }
+  async validePassworOrError(hashPassword: string, password: string) {
+    const valide = await this.helper.validPassword(hashPassword, password);
+    if (!valide) throw new BaseHttpException(ErrorCodeEnum.WRONG_PASSWORD);
+    return password;
+  }
 }

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import * as slug from 'speakingurl';
 import { generate } from 'voucher-code-generator';
@@ -11,6 +12,10 @@ export class HelpService {
   async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 12);
   }
+  async validPassword(password: string, userPassword: string) {
+    return await bcrypt.compare(userPassword, password);
+  }
+
   public slugify(value: string): string {
     if (value.charAt(value.length - 1) === '-')
       value = value.slice(0, value.length - 1);
