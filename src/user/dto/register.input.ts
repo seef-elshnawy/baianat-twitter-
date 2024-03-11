@@ -54,23 +54,6 @@ export class RegisterInput {
   @IsNotEmpty()
   password: string;
 
-  @ValidateIf(o => o.lat)
-  @IsLongitude()
-  @IsNotEmpty()
-  @Field({ nullable: true })
-  long?: number;
-
-  @ValidateIf(o => o.long)
-  @IsLatitude()
-  @IsNotEmpty()
-  @Field({ nullable: true })
-  lat?: number;
-
-  @Field(type => DeviceEnum)
-  @IsEnum(DeviceEnum)
-  @IsNotEmpty()
-  device: DeviceEnum;
-
   @IsISO31661Alpha2()
   @IsNotEmpty()
   @Field()

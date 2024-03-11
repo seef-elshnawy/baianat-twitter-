@@ -16,8 +16,11 @@ import { IsUserWithVerificationCodeExistInput } from './dto/is-user-with-verific
 import { UserService } from 'src/user/Service/user.service';
 import { UserVerificationCodeService } from 'src/user/Service/user-verification-code.service';
 import { RegisterInput } from 'src/user/dto/register.input';
-import { langEnum } from 'src/user/user.enum';
+import { UserVerificationCodeUseCaseEnum, langEnum } from 'src/user/user.enum';
 import { UserTransformer } from 'src/user/transformer/user.transformer';
+import { MailService } from 'src/mail/mail.service';
+import { UserValideOtp } from 'src/user/dto/user.signin';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +33,7 @@ export class AuthService {
     private userService: UserService,
     private userVerificationCodeService: UserVerificationCodeService,
     private userTransformer: UserTransformer,
+    private mailService: MailService,
   ) {}
 
   generateAuthToken(id: string): string {
@@ -62,7 +66,7 @@ export class AuthService {
     });
     return user;
   }
-  async register(input: RegisterInput, lang: langEnum) {
+  async register(input: RegisterInput, lang: langEnum): Promise<Object> {
     await this.userService.errorIfUserWithVerifiedPhoneExists(input.phone);
     await this.userService.deleteDuplicatedUsersAtNotVerifiedPhone(input.phone);
     await this.userService.deleteDuplicatedUsersAtEmailsIfPhoneNotVerifiedYet(
@@ -71,6 +75,39 @@ export class AuthService {
     await this.userService.errorIfUserWithEmailExists(input.email);
     const transformeredInput =
       await this.userTransformer.registerAsUserInputTransformer(input, lang);
-    return await this.userRepo.createOne({ ...transformeredInput });
+    const user = await this.userRepo.createOne({ ...transformeredInput });
+    this.userVerificationCodeService.userShouldNotSendVerificationCodeIfAlreadyVerified(
+      user,
+      input.phone,
+    );
+    const code =
+      this.userVerificationCodeService.generateVerfifcationCodeAndExpirationDate();
+    await this.mailService.sendUserConfirmation(user, code.verificationCode);
+    return await this.userVerificationCodesRepo.createOne({
+      userId: user.id,
+      code: code.verificationCode,
+      expiryDate: code.expiryDateAfterOneHour,
+      useCase: UserVerificationCodeUseCaseEnum.EMAIL_VERIFICATION,
+    });
+  }
+  async validateOtp(Input: UserValideOtp) {
+    const useCase = UserVerificationCodeUseCaseEnum;
+    let user;
+    if (Input.email) {
+      user = await this.userRepo.findOne({
+        notVerifiedEmail: Input.email,
+      });
+      const emailCase = useCase.EMAIL_VERIFICATION;
+      await this.userVerificationCodeService.validVerificationCodeOrError({
+        user,
+        useCase: emailCase,
+        verificationCode: Input.otp,
+      });
+      await this.userVerificationCodeService.deleteVerificationCodeAndUpdateUserModel(
+        { user, useCase: emailCase },
+        { notVerifiedEmail: null, VerifiedEmail: Input.email },
+      );
+      return true;
+    }
   }
 }

@@ -35,21 +35,21 @@ export class UserVerificationCode extends Model {
 
   @AllowNull(false)
   @Column({
-    type: DataType.DATE
+    type: DataType.DATE,
   })
-  expiryDate: Date
+  expiryDate: Date;
 
-  @ForeignKey(()=>User)
+  @ForeignKey(() => User)
   @AllowNull(false)
   @Column({
     type: DataType.UUID,
     onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
+    onUpdate: 'CASCADE',
   })
-  userId:string
+  userId: string;
 
-  @BelongsTo(()=>User)
-  user:User
+  @BelongsTo(() => User)
+  user: User;
 
   @CreatedAt
   @Column

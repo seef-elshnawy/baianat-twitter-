@@ -3,5 +3,6 @@ import { ContextService } from './context.service';
 import { IContextAuthToken } from './context.interface';
 @Module({
   providers: [{ useClass: ContextService, provide: IContextAuthToken }],
+  exports: [{useClass: ContextService, provide: IContextAuthToken}]
 })
 export class ContextModule {}

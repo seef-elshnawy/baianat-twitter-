@@ -30,7 +30,7 @@ export class UserVerificationCodeService {
         this.configService.get('NODE_ENV') === 'production'
           ? Math.floor(1000 * Math.random() * 9000).toString()
           : '1234',
-      expiryDateAfterOneHour: new Date(Date.now() * 3600000),
+      expiryDateAfterOneHour: new Date(Date.now() + 3600000),
     };
   }
 

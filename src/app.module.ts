@@ -13,6 +13,10 @@ import { DatabaseModule } from './common/database/database.module';
 import { SecurityGroupModule } from './security-group/security-group.module';
 import { ContextModule } from './context/context.module';
 import { GqlConfigService } from './common/graphql/graphql.provider';
+import { Timestamp } from './common/graphql/timestamp.scalar';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { GqlResponseInterceptor } from './common/graphql/graphql-response.interceptor';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -28,6 +32,14 @@ import { GqlConfigService } from './common/graphql/graphql.provider';
       imports: [ContextModule],
     }),
     SecurityGroupModule,
+    MailModule,
+  ],
+  providers: [
+    Timestamp,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: GqlResponseInterceptor,
+    },
   ],
 })
 export class AppModule {}

@@ -17,8 +17,10 @@ export class UserTransformer {
       favLang,
       fullName: input.firstName + ' ' + input.lastName,
       notVerifiedPhone: input.phone,
-      password: this.helperService.hashPassword(input.password),
-      slug: this.helperService.slugify(
+      VerifiedPhone: null,
+      notVerifiedEmail: input.email,
+      password: await this.helperService.hashPassword(input.password),
+      slag: this.helperService.slugify(
         `${input.firstName} - ${input.lastName || ''}`,
       ),
     };

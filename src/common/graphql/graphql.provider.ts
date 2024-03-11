@@ -23,7 +23,6 @@ export class GqlConfigService implements GqlOptionsFactory {
       csrfPrevention: true,
       context: async ({ req, extra }) => {
         let currentUser: User;
-        console.log(extra, 'extra');
         if (extra && extra.currentUser) currentUser = extra.currentUser;
         else
           currentUser = await this.authService.getUserFromReqHeaders(

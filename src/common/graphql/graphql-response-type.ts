@@ -1,6 +1,6 @@
-import { Field } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { PageInfo, PaginationRes } from '../paginator/paginator.types';
-import { ClassType, Int, ObjectType } from 'type-graphql';
+import { ClassType } from 'type-graphql';
 
 export interface IGqlSucessResponse<T> {
   code: number;
@@ -52,7 +52,6 @@ export function generateGqlResponseType<T, K>(
     : Array.isArray(TClass)
       ? `${TClass[0].name}s`
       : TClass.name;
-
   @ObjectType(`Gql${className}Response`)
   abstract class GqlResponse {
     @Field((type) => filedType, {
@@ -96,6 +95,7 @@ export function wrapEntityWithGqlRes<T>(model: T): IGqlSucessResponse<T> {
 export const GqlStringResponse = generateGqlResponseType(String);
 export const GqlStringArrayResponse = generateGqlResponseType([String], true);
 export const GqlBooleanResponse = generateGqlResponseType(Boolean);
+
 
 @ObjectType(`GqlDeleteResponse`)
 export class GqlDeleteResponse {

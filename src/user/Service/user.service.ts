@@ -88,12 +88,12 @@ export class UserService {
     return user;
   }
   async errorIfUserWithEmailExists(email?: string) {
-    if (email && (await this.userRepo.findOne({ email })))
+    if (email && (await this.userRepo.findOne({ VerifiedEmail: email })))
       throw new BaseHttpException(ErrorCodeEnum.EMAIL_ALREADY_EXISTS);
   }
 
   async errorIfUserWithVerifiedPhoneExists(phone?: string) {
-    if (phone && (await this.userRepo.findOne({ verifiedPhone: phone })))
+    if (phone && (await this.userRepo.findOne({ VerifiedPhone: phone })))
       throw new BaseHttpException(ErrorCodeEnum.PHONE_ALREADY_EXISTS);
   }
   async userByNotVerifiedPhoneOrError(phone: string) {
@@ -129,7 +129,9 @@ export class UserService {
     duplicatedEmail?: string,
   ) {
     if (duplicatedEmail) {
-      const user = await this.userRepo.findOne({ email: duplicatedEmail });
+      const user = await this.userRepo.findOne({
+        notVerifiedEmail: duplicatedEmail,
+      });
       if (user && !user.VerifiedPhone) await user.destroy({ force: true });
     }
   }

@@ -111,11 +111,16 @@ export class User extends Model {
   @Field(() => SecurityGroup, { nullable: true })
   securityGroup?: SecurityGroup;
 
-  @Unique
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({ type: DataType.STRING })
   @Field()
-  email: string;
+  notVerifiedEmail: string;
+
+  @Unique
+  @AllowNull(true)
+  @Column({ type: DataType.STRING })
+  @Field()
+  VerifiedEmail: string;
 
   @Default(false)
   @AllowNull(false)
