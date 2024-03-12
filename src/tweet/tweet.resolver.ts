@@ -1,16 +1,44 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { TweetService } from './tweet.service';
+import { TweetService } from './service/tweet.service';
 import { Tweet } from './entities/tweet.entity';
 import { CreateTweetInput } from './dto/create-tweet.input';
 import { UpdateTweetInput } from './dto/update-tweet.input';
+import { CurrentUser } from 'src/auth/decorator/user.decorator';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { GqlTweetResponse } from './tweet.response';
 
 @Resolver(() => Tweet)
 export class TweetResolver {
   constructor(private readonly tweetService: TweetService) {}
 
-  @Mutation(() => Tweet)
-  createTweet(@Args('createTweetInput') createTweetInput: CreateTweetInput) {
-    return this.tweetService.create(createTweetInput);
+  @UseGuards(AuthGuard)
+  @Mutation(() => GqlTweetResponse)
+  createTweet(
+    @Args('createTweetInput') createTweetInput: CreateTweetInput,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.tweetService.addTweet(createTweetInput, userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => GqlTweetResponse)
+  async Retweet(
+    @Args('tweetId') tweetId: string,
+    @Args('createTweetInput') createTweetInput: CreateTweetInput,
+    @CurrentUser('id') userId: string,
+  ) {
+    return await this.tweetService.Retweet(tweetId, createTweetInput, userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => GqlTweetResponse)
+  async Reply(
+    @Args('tweetId') tweetId: string,
+    @Args('input') createTweetInput: CreateTweetInput,
+    @CurrentUser('id') userId: string,
+  ) {
+    return await this.tweetService.addReply(tweetId, createTweetInput, userId);
   }
 
   @Query(() => [Tweet], { name: 'tweet' })

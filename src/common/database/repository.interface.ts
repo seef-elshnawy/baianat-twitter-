@@ -14,10 +14,10 @@ export interface IRepository<T> {
     attributes?: string[],
   ): Promise<T[]>;
   findPaginated(
-    where: WhereOptions,
-    sort: any,
     page: number,
     limit: number,
+    where?: WhereOptions,
+    sort?: any,
     include?: Includeable[],
   ): Promise<PaginationRes<T>>;
   findPaginatedManually(

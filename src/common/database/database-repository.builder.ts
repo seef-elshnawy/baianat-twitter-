@@ -45,11 +45,11 @@ export function buildRepository(Model: MyModelStatic): any {
       });
     }
     async findPaginated(
-      where: WhereOptions,
-      sort: any,
-      page: number,
-      limit: number,
-      include: Includeable[],
+      page: number=0,
+      limit: number=15,
+      where: WhereOptions = {},
+      sort: any = "-createdAt",
+      include: Includeable[]=[],
     ): Promise<PaginationRes<MyModel>> {
       return await (Model as MyModelStatic & { paginate: any }).paginate(
         where,

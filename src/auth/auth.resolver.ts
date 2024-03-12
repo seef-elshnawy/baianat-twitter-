@@ -15,6 +15,7 @@ import { CurrentUser } from './decorator/user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from './guard/auth.guard';
+import { Ctx } from 'type-graphql';
 
 @Resolver(() => Auth)
 export class AuthResolver {
@@ -39,7 +40,7 @@ export class AuthResolver {
   async validatePhoneNumber(@Args('phone') phone: string) {
     return await this.authService.validatePhoneNumber(phone);
   }
-
+  
   @UseGuards(AuthGuard)
   @Query(() => gqlUserResponse)
   async getMe(@CurrentUser() user: User) {

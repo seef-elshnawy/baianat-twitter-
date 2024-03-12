@@ -28,6 +28,8 @@ export class UserService {
     currentUserId: string,
   ): Promise<PaginationRes<User>> {
     return await this.userRepo.findPaginated(
+      paginate.page,
+      paginate.limit,
       {
         id: { [Op.ne]: currentUserId },
         ...(filter.isBlocked !== undefined && { isBlocked: filter.isBlocked }),
@@ -45,8 +47,6 @@ export class UserService {
         }),
       },
       '-createdAt',
-      paginate.page,
-      paginate.limit,
     );
   }
   async userOrError(input: UserBoardInput) {

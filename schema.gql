@@ -78,6 +78,13 @@ type Tweet {
   Tweet_Images: [String!]!
 }
 
+type GqlTweetResponse {
+  data: Tweet
+  message: String!
+  code: Int!
+  success: Boolean!
+}
+
 scalar Timestamp
 
 type Query {
@@ -90,7 +97,9 @@ type Mutation {
   validateOtp(input: UserValideOtp!): GqlBooleanResponse!
   signInUsingEmail(input: UserSignIn!): GqlStringResponse!
   validatePhoneNumber(phone: String!): GqlStringResponse!
-  createTweet(createTweetInput: CreateTweetInput!): Tweet!
+  createTweet(createTweetInput: CreateTweetInput!): GqlTweetResponse!
+  Retweet(tweetId: String!, createTweetInput: CreateTweetInput!): GqlTweetResponse!
+  Reply(tweetId: String!, input: CreateTweetInput!): GqlTweetResponse!
   updateTweet(updateTweetInput: UpdateTweetInput!): Tweet!
   removeTweet(id: Int!): Tweet!
 }
@@ -124,12 +133,12 @@ input UserSignIn {
 }
 
 input CreateTweetInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  tweet: String!
+  hashtag: [String!]
 }
 
 input UpdateTweetInput {
-  """Example field (placeholder)"""
-  exampleField: Int
+  tweet: String
+  hashtag: [String!]
   id: Int!
 }
