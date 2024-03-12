@@ -55,19 +55,21 @@ export class TweetService {
 
   async addReply(tweetId: string, input: CreateTweetInput, userId: string) {
     const tweet = await this.tweetRepo.findOne({ id: tweetId });
-    if(!tweet) throw new BaseHttpException(ErrorCodeEnum.TWEET_NOT_FOUND)
-    const reply= await this.tweetRepo.createOne({
+    if (!tweet) throw new BaseHttpException(ErrorCodeEnum.TWEET_NOT_FOUND);
+    const reply = await this.tweetRepo.createOne({
       tweet: input.tweet,
       parentReply: tweetId,
       userId,
     });
     const replies = tweet.replies.concat(reply.id);
     tweet.update({ replies });
-    return reply
+    return reply;
   }
 
-  async findAll() {
-    return await this.tweetRepo.findPaginated(1, 15);
+  async findAll(page: number, limit: number) {
+    const values = await this.tweetRepo.findPaginated({}, page, limit);
+    console.log(values, 'values')
+    return values
   }
 
   async findOne(id: number) {

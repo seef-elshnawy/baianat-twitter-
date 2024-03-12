@@ -14,6 +14,7 @@ import {
 } from 'sequelize-typescript';
 import {
   manualPaginated,
+  manualPaginatorReturnsArray,
   paginate,
 } from 'src/common/paginator/paginator.service';
 import { GenderEnum, langEnum } from '../user.enum';
@@ -135,10 +136,10 @@ export class User extends Model {
     limit = 15,
     include: any = [],
   ) {
-    return await paginate(this, filter, sort, page, limit, include);
+    return paginate<User>(this, filter, sort, page, limit, include);
   }
 
-  static async paginateManually(data: User[], page = 0, limit = 15) {
-    return await manualPaginated<User>(data, {}, '-createdAt', page, limit);
+  static paginateManually(data: User[], page = 0, limit = 15) {
+    return manualPaginatorReturnsArray<User>(data, {}, '-createdAt', page, limit);
   }
 }

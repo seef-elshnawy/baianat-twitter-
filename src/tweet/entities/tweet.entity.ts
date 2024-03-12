@@ -3,6 +3,7 @@ import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, Model,
 import { User } from 'src/user/entities/user.entity';
 import { Hashtag } from './hashtag.entity';
 import { TweetHashtag } from './tweetHash.entity';
+import { manualPaginatorReturnsArray, paginate } from 'src/common/paginator/paginator.service';
 
 @ObjectType()
 @Table({tableName: 'Tweet'})
@@ -25,14 +26,14 @@ userId: string;
   type: DataType.UUID,
 })
 @ForeignKey(() => Tweet)
-@Field(() => String)
+@Field(() => String,{nullable:true})
 parentReply: string;
 
 @Column({
   type: DataType.UUID,
 })
 @ForeignKey(() => Tweet)
-@Field(() => String)
+@Field(() => String,{nullable:true})
 retweet: string;
 @Column({
   type: DataType.ARRAY(DataType.STRING),
@@ -59,4 +60,18 @@ parentRetweet: Tweet;
 
 @BelongsToMany(() => Hashtag, () => TweetHashtag)
 HashTags: Hashtag[];
+
+static async paginate(
+  filter = {},
+  sort = '-createdAt',
+  page = 0,
+  limit = 15,
+  include: any = [],
+) {
+  return paginate<Tweet>(this, filter, sort, page, limit, include);
+}
+
+static paginateManually(data: Tweet[], page = 0, limit = 15) {
+  return manualPaginatorReturnsArray<Tweet>(data, {}, '-createdAt', page, limit);
+}
 }

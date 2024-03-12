@@ -6,7 +6,7 @@ import { UpdateTweetInput } from './dto/update-tweet.input';
 import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { GqlTweetResponse } from './tweet.response';
+import { GqlTweetPaginateResponse, GqlTweetResponse } from './tweet.response';
 
 @Resolver(() => Tweet)
 export class TweetResolver {
@@ -41,11 +41,6 @@ export class TweetResolver {
     return await this.tweetService.addReply(tweetId, createTweetInput, userId);
   }
 
-  @Query(() => [Tweet], { name: 'tweet' })
-  findAll() {
-    return this.tweetService.findAll();
-  }
-
   @Query(() => Tweet, { name: 'tweet' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.tweetService.findOne(id);
@@ -59,5 +54,9 @@ export class TweetResolver {
   @Mutation(() => Tweet)
   removeTweet(@Args('id', { type: () => Int }) id: number) {
     return this.tweetService.remove(id);
+  }
+  @Query(() => GqlTweetPaginateResponse)
+  async getAllTweets(@Args('page') page: number, @Args('limit') limit: number) {
+    return await this.tweetService.findAll(page, limit);
   }
 }

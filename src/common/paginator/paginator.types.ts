@@ -15,6 +15,7 @@ export interface PaginationRes<T> {
     page?: number;
     hasNext: boolean;
     hasBefore: boolean;
+    limit?: number
   };
 }
 

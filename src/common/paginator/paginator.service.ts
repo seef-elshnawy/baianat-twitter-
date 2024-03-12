@@ -24,7 +24,7 @@ export const paginate = async <T>(
   let order = null;
   if (typeof sort === 'object') order = sort;
   else order = [[sort.replace('-', ''), sort.startsWith('-') ? 'DESC' : 'ASC']];
-  let items = model.findAll({
+  let items = await model.findAll({
     where: filter,
     ...(order && { order }),
     offset: skip,
@@ -32,11 +32,13 @@ export const paginate = async <T>(
     nest: true,
     raw: true,
   });
+  console.log(items)
   return {
     pageInfo: {
       hasNext,
       hasBefore: page > 1,
       page,
+      limit
     },
     items: <any>items,
   };

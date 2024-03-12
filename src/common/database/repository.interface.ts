@@ -14,9 +14,9 @@ export interface IRepository<T> {
     attributes?: string[],
   ): Promise<T[]>;
   findPaginated(
+    where: WhereOptions,
     page: number,
     limit: number,
-    where?: WhereOptions,
     sort?: any,
     include?: Includeable[],
   ): Promise<PaginationRes<T>>;
