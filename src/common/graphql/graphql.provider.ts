@@ -28,9 +28,11 @@ export class GqlConfigService implements GqlOptionsFactory {
           currentUser = await this.authService.getUserFromReqHeaders(
             <Request>req,
           );
+        const token = await this.authService.getAuth(req);
         return {
           req,
           currentUser,
+          token,
         };
       },
     };

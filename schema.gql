@@ -71,8 +71,11 @@ type GqlUsersPagination {
 }
 
 type Tweet {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  tweet: String!
+  parentReply: String!
+  retweet: String!
+  replies: [String!]!
+  Tweet_Images: [String!]!
 }
 
 scalar Timestamp
@@ -86,6 +89,7 @@ type Mutation {
   register(input: RegisterInput!): JSON!
   validateOtp(input: UserValideOtp!): GqlBooleanResponse!
   signInUsingEmail(input: UserSignIn!): GqlStringResponse!
+  validatePhoneNumber(phone: String!): GqlStringResponse!
   createTweet(createTweetInput: CreateTweetInput!): Tweet!
   updateTweet(updateTweetInput: UpdateTweetInput!): Tweet!
   removeTweet(id: Int!): Tweet!

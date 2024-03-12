@@ -9,7 +9,6 @@ export const CurrentUser = createParamDecorator(
     if (data) {
       return await currentUser[data];
     }
-    console.log(currentUser)
     return await currentUser;
   },
 );

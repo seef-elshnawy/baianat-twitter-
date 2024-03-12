@@ -18,6 +18,7 @@ import { UserTransformer } from 'src/user/transformer/user.transformer';
 import { MailService } from 'src/mail/mail.service';
 import { UserValideOtp } from 'src/user/dto/user.valide-otp';
 import { UserSignIn } from 'src/user/dto/user.signin';
+import { TwilloService } from 'src/twilio/twillo.service';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +32,7 @@ export class AuthService {
     private userVerificationCodeService: UserVerificationCodeService,
     private userTransformer: UserTransformer,
     private mailService: MailService,
+    private twilioService: TwilloService,
   ) {}
 
   generateAuthToken(id: string): string {
@@ -80,19 +82,45 @@ export class AuthService {
     const code =
       this.userVerificationCodeService.generateVerfifcationCodeAndExpirationDate();
     await this.mailService.sendUserConfirmation(user, code.verificationCode);
-    return await this.userVerificationCodesRepo.createOne({
+    await this.userVerificationCodesRepo.createOne({
       userId: user.id,
       code: code.verificationCode,
       expiryDate: code.expiryDateAfterOneHour,
       useCase: UserVerificationCodeUseCaseEnum.EMAIL_VERIFICATION,
     });
+    return jwt.sign({ email: user.notVerifiedEmail }, this.configService.get('JWT_SECRET'));
   }
-  async validateOtp(Input: UserValideOtp) {
+
+  async validatePhoneNumber(phone: string) {
+    await this.userService.errorIfUserWithVerifiedPhoneExists(phone);
+    const user = await this.userRepo.findOne({
+      notVerifiedPhone: phone,
+    });
+    if (!user)
+      throw new BaseHttpException(ErrorCodeEnum.USER_PHONE_NOT_VERIFIED_YET);
+    const code =
+      this.userVerificationCodeService.generateVerfifcationCodeAndExpirationDate();
+    const otp = await this.userVerificationCodesRepo.createOne({
+      userId: user.id,
+      code: code.verificationCode,
+      expiryDate: code.expiryDateAfterOneHour,
+      useCase: UserVerificationCodeUseCaseEnum.PHONE_VERIFICATION,
+    });
+    await this.twilioService.sendSms(
+      phone,
+      `hello ${user.firstName} your twitter verification code is ${otp.code}`,
+    );
+    return jwt.sign({ phone }, this.configService.get('JWT_SECRET'));
+  }
+
+  async validateOtp(Input: UserValideOtp, token: string) {
     const useCase = UserVerificationCodeUseCaseEnum;
-    let user;
-    if (Input.email) {
+    let user: User;
+    //@ts-expect-error
+    const payload: {email?: string, phone?:string} = jwt.verify(token, this.configService.get('JWT_SECRET'))
+    if (payload.email) {
       user = await this.userRepo.findOne({
-        notVerifiedEmail: Input.email,
+        notVerifiedEmail: payload.email,
       });
       const emailCase = useCase.EMAIL_VERIFICATION;
       await this.userVerificationCodeService.validVerificationCodeOrError({
@@ -102,7 +130,23 @@ export class AuthService {
       });
       await this.userVerificationCodeService.deleteVerificationCodeAndUpdateUserModel(
         { user, useCase: emailCase },
-        { notVerifiedEmail: null, VerifiedEmail: Input.email },
+        { notVerifiedEmail: null, VerifiedEmail: payload.email },
+      );
+      return true;
+    }
+    if (payload.phone) {
+      user = await this.userRepo.findOne({
+        notVerifiedPhone: payload.phone,
+      });
+      const phoneCase = useCase.PHONE_VERIFICATION;
+      await this.userVerificationCodeService.validVerificationCodeOrError({
+        user,
+        useCase: phoneCase,
+        verificationCode: Input.otp,
+      });
+      await this.userVerificationCodeService.deleteVerificationCodeAndUpdateUserModel(
+        { user, useCase: phoneCase },
+        { notVerifiedPhone: null, VerifiedPhone: payload.phone },
       );
       return true;
     }

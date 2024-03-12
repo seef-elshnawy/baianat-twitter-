@@ -6,9 +6,10 @@ import { User } from 'src/user/entities/user.entity';
 import { UserModule } from 'src/user/user.module';
 import { UserTransformer } from 'src/user/transformer/user.transformer';
 import { MailModule } from 'src/mail/mail.module';
+import { TwilloModule } from 'src/twilio/twillo.module';
 
 @Module({
-  imports:[UserModule, MailModule],
+  imports: [UserModule, MailModule, TwilloModule],
   providers: [AuthResolver, AuthService],
 })
 export class AuthModule {}

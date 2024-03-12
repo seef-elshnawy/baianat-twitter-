@@ -17,6 +17,7 @@ import { Timestamp } from './common/graphql/timestamp.scalar';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { GqlResponseInterceptor } from './common/graphql/graphql-response.interceptor';
 import { MailModule } from './mail/mail.module';
+import { TwilloModule } from './twilio/twillo.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { MailModule } from './mail/mail.module';
     }),
     SecurityGroupModule,
     MailModule,
+    TwilloModule,
   ],
   providers: [
     Timestamp,

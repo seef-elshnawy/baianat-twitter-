@@ -30,9 +30,9 @@ export class ContextService implements IContextAuthService {
     }
     return null;
   }
-  hasPremission(premisson: string, user: User): boolean {
+  hasPremission(premisson: [], user: User): boolean {
     if (!user || !user.securityGroup || !user.securityGroup.id) return false;
-    return user.securityGroup.premissons.includes(premisson);
+    return user.securityGroup.premissons.includes(...premisson, '0');
   }
   async getUserFromReqHeaders(req: Request): Promise<User> {
     const token = this.getAuth(req);
@@ -40,6 +40,7 @@ export class ContextService implements IContextAuthService {
     let { userId } = <authTokenPayload>(
       (<unknown>jwt.verify(token, this.config.get('JWT_SECRET')))
     );
+    if(!userId) return null
     const user = await this.userRepo.findOne({ id: userId }, [SecurityGroup]);
     return user ? (user.toJSON() as User) : null;
   }

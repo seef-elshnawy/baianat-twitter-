@@ -5,5 +5,6 @@ export const IContextAuthToken = 'IContextToken';
 
 export interface IContextAuthService {
   getUserFromReqHeaders(req: Request): Promise<User>;
-  hasPremission(premisson: string, user: User): boolean;
+  hasPremission(premisson: string[], user: User): boolean;
+  getAuth(request:Request) : string
 }
