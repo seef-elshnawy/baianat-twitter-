@@ -49,6 +49,10 @@ export class UserService {
       '-createdAt',
     );
   }
+  async getAllUser(page: number, limit: number) {
+    return await this.userRepo.findPaginated({}, page, limit);
+  }
+
   async userOrError(input: UserBoardInput) {
     const user = await this.userRepo.findOne({ id: input.userId });
     if (!user) throw new BaseHttpException(ErrorCodeEnum.USER_DOES_NOT_EXIST);

@@ -26,4 +26,11 @@ export class HelpService {
       })[0]
     }`.toLowerCase();
   }
+  driveMapFromArray<T>(array: T[], mapFn: (item) => any) {
+    const map = new Map<any, any>();
+    array.forEach((item) => {
+      map.set(mapFn(item), item);
+    });
+    return map
+  }
 }

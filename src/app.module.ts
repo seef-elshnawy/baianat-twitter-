@@ -18,6 +18,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { GqlResponseInterceptor } from './common/graphql/graphql-response.interceptor';
 import { MailModule } from './mail/mail.module';
 import { TwilloModule } from './twilio/twillo.module';
+import { DataloaderModule } from './common/dataloader/dataloader.module';
 
 @Module({
   imports: [
@@ -30,11 +31,12 @@ import { TwilloModule } from './twilio/twillo.module';
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       useClass: GqlConfigService,
-      imports: [ContextModule],
+      imports: [ContextModule, DataloaderModule],
     }),
     SecurityGroupModule,
     MailModule,
     TwilloModule,
+    DataloaderModule,
   ],
   providers: [
     Timestamp,

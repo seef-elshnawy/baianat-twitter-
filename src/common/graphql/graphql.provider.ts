@@ -8,10 +8,15 @@ import {
 } from 'src/context/context.interface';
 import { User } from 'src/user/entities/user.entity';
 import { Request } from 'express';
+import { DataloaderService } from '../dataloader/dataloader.service';
 
 @Injectable()
 export class GqlConfigService implements GqlOptionsFactory {
-  @Inject(IContextAuthToken) private readonly authService: IContextAuthService;
+  constructor(
+    @Inject(IContextAuthToken)
+    private readonly authService: IContextAuthService,
+    @Inject(DataloaderService) private dataloaderService: DataloaderService,
+  ) {}
 
   createGqlOptions(): ApolloDriverConfig {
     return {
@@ -33,6 +38,7 @@ export class GqlConfigService implements GqlOptionsFactory {
           req,
           currentUser,
           token,
+          loaders: this.dataloaderService.createLoaders(),
         };
       },
     };

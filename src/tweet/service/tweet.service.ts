@@ -35,7 +35,6 @@ export class TweetService {
     }
     if (input.hashtag) {
       input.hashtag.map(async (h) => {
-        console.log(h);
         const hashtag = await this.hashTagRepo.findOneOrCreate(
           { HashTag: h },
           { HashTag: h },
@@ -68,7 +67,6 @@ export class TweetService {
 
   async findAll(page: number, limit: number) {
     const values = await this.tweetRepo.findPaginated({}, page, limit);
-    console.log(values, 'values')
     return values
   }
 
