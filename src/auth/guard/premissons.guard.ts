@@ -32,7 +32,7 @@ export class PremissonGuard implements CanActivate {
     if (
       premissons &&
       premissons.length &&
-      this.authService.hasPremission(premissons, currentUser)
+      !this.authService.hasPremission(premissons, currentUser)
     )
       throw new BaseHttpException(ErrorCodeEnum.UNAUTHORIZED);
     return true;

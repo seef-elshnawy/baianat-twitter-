@@ -13,6 +13,6 @@ export class CreateSecurityGroupInput {
   readonly description?: string;
 
   @ValidPremissons()
-  @Field((type) => String)
+  @Field((type) => [String])
   readonly premissons: string[];
 }

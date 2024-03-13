@@ -11,6 +11,7 @@ import { Op } from 'sequelize';
 import { AssignSecurityGroupToUsers } from './dto/assign-security-group-to-user';
 import { UnAssignSecurityGroupToUsersInput } from './dto/unassign-user-to-securitygroup';
 import { DeleteSecurityGroupInput } from './dto/delete-security-group.input';
+import { getAllPremissons } from './security-group-premissions';
 
 @Injectable()
 export class SecurityGroupService {
@@ -32,6 +33,21 @@ export class SecurityGroupService {
         ErrorCodeEnum.SECURITY_GROUP_NAME_ALREADY_EXISTS,
       );
     return await this.securityGroupRepo.createOne(input);
+  }
+  async createSecuritygroupSuperAdmin() {
+    const otherSecurityGroupWithSamename = await this.securityGroupRepo.findOne(
+      {
+        groupName: 'SUPER_ADMIN',
+      },
+    );
+    if (otherSecurityGroupWithSamename)
+      throw new BaseHttpException(
+        ErrorCodeEnum.SECURITY_GROUP_NAME_ALREADY_EXISTS,
+      );
+    return await this.securityGroupRepo.createOne({
+      premissons: getAllPremissons(),
+      groupName: 'SUPER_ADMIN',
+    });
   }
   async updateSecurityGroup(
     input: UpdateSecurityGroupInput,
@@ -62,7 +78,7 @@ export class SecurityGroupService {
   }
 
   async assignSecurityGroup(input: AssignSecurityGroupToUsers) {
-    const securityGroup = await this.SecurityGroupOrError(
+     await this.SecurityGroupOrError(
       input.securityGroupId,
     );
     const users = await this.userRepo.findAll({
@@ -72,9 +88,9 @@ export class SecurityGroupService {
       throw new BaseHttpException(ErrorCodeEnum.USER_DOES_NOT_EXIST);
     await this.userRepo.updateAll(
       { id: { [Op.in]: input.usersIds } },
-      { securityGroupId: input.securityGroupId },
+      { sucurityGroupId: input.securityGroupId },
     );
-    return securityGroup;
+    return true;
   }
 
   async unAssignSecurityGroup(input: UnAssignSecurityGroupToUsersInput) {

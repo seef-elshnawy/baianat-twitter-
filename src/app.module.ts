@@ -24,8 +24,8 @@ import { DataloaderModule } from './common/dataloader/dataloader.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
-    UserModule,
     AuthModule,
+    UserModule,
     TweetModule,
     CommonModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({

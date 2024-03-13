@@ -19,6 +19,6 @@ export const config = (configService: ConfigService) => {
         acquire: 30000,
         idle: 10000
     },
-    models:model
+    models:model,
   };
 };

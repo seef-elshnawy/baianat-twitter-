@@ -8,8 +8,8 @@ export const databaseProvider = {
   provide: 'SEQUELIZE',
   useFactory: async (configService: ConfigService) => {
     sequelizeInstance = new Sequelize(<SequelizeOptions>config(configService));
-    configService.get('NODE_ENV') !== 'testing' &&
-      (await sequelizeInstance.sync());
+    // configService.get('NODE_ENV') !== 'testing' &&
+    //   (await sequelizeInstance.sync());
     return sequelizeInstance;
   },
   inject: [ConfigService],

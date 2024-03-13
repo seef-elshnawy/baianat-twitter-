@@ -110,11 +110,18 @@ type GqlTweetsResponse {
   success: Boolean!
 }
 
+type GqlSecurityGroupResponse {
+  data: SecurityGroup
+  message: String!
+  code: Int!
+  success: Boolean!
+}
+
 scalar Timestamp
 
 type Query {
-  getUsers(page: Float!, limit: Float!): GqlUsersResponse!
   getMe: GqlUserResponse!
+  getUsers(page: Float!, limit: Float!): GqlUsersResponse!
   tweet(id: Int!): Tweet!
   getAllTweets(page: Float!, limit: Float!): GqlTweetsResponse!
 }
@@ -129,6 +136,11 @@ type Mutation {
   Reply(tweetId: String!, input: CreateTweetInput!): GqlTweetResponse!
   updateTweet(updateTweetInput: UpdateTweetInput!): Tweet!
   removeTweet(id: Int!): Tweet!
+  createSecuritygroup(input: CreateSecurityGroupInput!): GqlSecurityGroupResponse!
+  assignSecurityGroupToUser(input: AssignSecurityGroupToUsers!): GqlBooleanResponse!
+  unAssignSecurityGroupToUser(input: UnAssignSecurityGroupToUsersInput!): GqlBooleanResponse!
+  deleteSecurityGroupToUser(securityGroupId: String!): GqlBooleanResponse!
+  updateSecurityGroupToUser(input: UpdateSecurityGroupInput!): GqlSecurityGroupResponse!
 }
 
 input RegisterInput {
@@ -163,4 +175,26 @@ input UpdateTweetInput {
   tweet: String
   hashtag: [String!]
   id: Int!
+}
+
+input CreateSecurityGroupInput {
+  groupName: String!
+  description: String
+  premissons: [String!]!
+}
+
+input AssignSecurityGroupToUsers {
+  securityGroupId: String!
+  usersIds: [String!]!
+}
+
+input UnAssignSecurityGroupToUsersInput {
+  usersIds: [String!]!
+}
+
+input UpdateSecurityGroupInput {
+  securityGroupId: String!
+  groupName: String
+  description: String
+  permissions: [String]
 }

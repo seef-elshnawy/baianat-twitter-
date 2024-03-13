@@ -32,7 +32,7 @@ export function buildRepository(Model: MyModelStatic): any {
     ): Promise<MyModel[]> {
       if (!sort) sort = '-createdAt';
       let order = null;
-      if (typeof order === 'object') order = sort;
+      if (typeof sort === 'object') order = sort;
       else
         order = [
           [sort.replace('-', ''), sort.startsWith('-') ? 'DESC' : 'ASC'],

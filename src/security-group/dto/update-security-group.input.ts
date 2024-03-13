@@ -4,11 +4,10 @@ import { InputType, Field } from '@nestjs/graphql';
 import { ValidPremissons } from 'src/common/custom-validator/valid-premisson';
 
 @InputType()
-export abstract class UpdateSecurityGroupInput {
+export class UpdateSecurityGroupInput {
   @IsNotEmpty()
-  @IsUUID('4')
   @Field()
-  readonly securityGroupId: string;
+   securityGroupId: string;
 
   @IsOptional()
   @Field({ nullable: true })
