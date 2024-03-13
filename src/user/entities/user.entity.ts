@@ -13,7 +13,6 @@ import {
   Unique,
 } from 'sequelize-typescript';
 import {
-  manualPaginated,
   manualPaginatorReturnsArray,
   paginate,
 } from 'src/common/paginator/paginator.service';
@@ -128,6 +127,16 @@ export class User extends Model {
   @Column
   @Field()
   isBlocked: boolean;
+  
+  @Default([])
+  @AllowNull(true)
+  @Column({ type:DataType.ARRAY(DataType.STRING) })
+  Followers: string[];
+
+  @Default([])
+  @AllowNull(true)
+  @Column({ type: DataType.ARRAY(DataType.STRING) })
+  Followings: string[];
 
   static async paginate(
     filter = {},
@@ -140,6 +149,12 @@ export class User extends Model {
   }
 
   static paginateManually(data: User[], page = 0, limit = 15) {
-    return manualPaginatorReturnsArray<User>(data, {}, '-createdAt', page, limit);
+    return manualPaginatorReturnsArray<User>(
+      data,
+      {},
+      '-createdAt',
+      page,
+      limit,
+    );
   }
 }

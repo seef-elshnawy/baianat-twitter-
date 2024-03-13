@@ -144,4 +144,24 @@ export class UserService {
     if (!valide) throw new BaseHttpException(ErrorCodeEnum.WRONG_PASSWORD);
     return password;
   }
+
+  async addFollow(me: User, targetUserId: string) {
+    if (targetUserId === me.id)
+      throw new BaseHttpException(ErrorCodeEnum.YOU_CANT_ADD_YOURSELF);
+    const targetUser = await this.userRepo.findOne({ id: targetUserId });
+    if (!targetUser)
+      throw new BaseHttpException(ErrorCodeEnum.USER_DOES_NOT_EXIST);
+    const followings: string[] = me.Followings.concat(targetUser.id);
+    const followers: string[] = targetUser.Followers.concat(me.id);
+    if (followings.includes(targetUser.id) || followers.includes(me.id))
+      throw new BaseHttpException(ErrorCodeEnum.ALREADY_FOLLOW_THIS_USER);
+    await targetUser.update({
+      Followers: followers ? followers : [me.id],
+    });
+    await this.userRepo.updateAll(
+      { id: me.id },
+      { Followings: followings ? followings : [targetUser.id] },
+    );
+    return true;
+  }
 }
