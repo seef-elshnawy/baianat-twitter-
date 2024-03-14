@@ -1,7 +1,11 @@
 import { Literal } from 'sequelize/types/utils';
 import { MyModelStatic } from '../database/static-model';
-import { PaginationRes } from './paginator.types';
-
+import {
+  CursorBasedPaginationDirection,
+  PaginationRes,
+} from './paginator.types';
+import { CursorBasedPaginationArgsType } from './paginator.types';
+import { Op } from 'sequelize';
 export const paginate = async <T>(
   model: MyModelStatic,
   filter = {},
@@ -37,7 +41,7 @@ export const paginate = async <T>(
       hasNext,
       hasBefore: page > 1,
       page,
-      limit
+      limit,
     },
     items: <any>items,
   };
@@ -123,4 +127,94 @@ export const manualPaginatorReturnsArray = <T>(
   items = items.slice(skip, limit + skip);
   return items;
 };
-            
+
+export const CursourPagination = async <T>(
+  args: CursorBasedPaginationArgsType,
+): Promise<PaginationRes<T>> => {
+  let dateCursor = args.cursor && new Date(Number(args.cursor)),
+    sequelizeOperator =
+      args.direction === CursorBasedPaginationDirection.AFTER ? Op.lte : Op.gte,
+    orderDirection =
+      args.direction === CursorBasedPaginationDirection.AFTER ? 'DESC' : 'ASC';
+
+  const items = await args.model.findAll({
+    where: {
+      ...args.filter,
+      ...(dateCursor && {
+        createdAt: { [sequelizeOperator]: new Date(dateCursor) },
+      }),
+    },
+    order: [['createdAt', orderDirection]],
+    limit: args.limit + 1,
+    include: args.include,
+    nest: true,
+    logging: true,
+    raw: true,
+  });
+
+  let hasNext = items.length === args.limit + 1,
+    hasBefore = items.length === args.limit + 1,
+    nextCursor = null,
+    beforeCursor = null,
+    nextCursorRecord = hasNext ? items[args.limit] : null,
+    beforeCursorRecord = hasBefore ? items[args.limit] : null;
+
+  if (!items.length) {
+    return {
+      pageInfo: { nextCursor, hasNext, beforeCursor, hasBefore },
+      items: <any>items,
+    };
+  }
+
+  if (!dateCursor) dateCursor = new Date(items[0].createdAt);
+  if (args.direction === CursorBasedPaginationDirection.AFTER) {
+    const beforeItem = await args.model.findOne({
+      where: {
+        ...args.filter,
+        ...(dateCursor && { createdAt: { [Op.gt]: new Date(dateCursor) } }),
+      },
+      order: [['createdAt', 'ASC']],
+      limit: 1,
+      include: args.include,
+      nest: true,
+      raw: true,
+      attributes: ['createdAt'],
+    });
+    hasBefore = !!beforeItem;
+    if (beforeItem) {
+      beforeCursorRecord = beforeItem;
+      items.unshift(beforeItem);
+    }
+  }
+  if (args.direction === CursorBasedPaginationDirection.BEFORE) {
+    const nextItem = await args.model.findOne({
+      where: {
+        ...args.filter,
+        ...(dateCursor && { createdAt: { [Op.lt]: new Date(dateCursor) } }),
+      },
+      order: [['createdAt', 'DESC']],
+      include: args.include,
+      nest: true,
+      raw: true,
+      attributes: ['createdAt'],
+    });
+    hasNext = !!nextItem;
+    if (nextItem) {
+      nextCursorRecord = nextItem;
+      items.push(nextItem);
+    }
+  }
+  if (hasNext) {
+    nextCursor = nextCursorRecord.createdAt.getTime().toString();
+    items.pop();
+  }
+  if (hasBefore) {
+    beforeCursor = beforeCursorRecord.createdAt.getTime().toString();
+    items.shift();
+  }
+  if (args.direction === CursorBasedPaginationDirection.BEFORE) items.reverse();
+  return {
+    pageInfo: { nextCursor, hasNext, beforeCursor, hasBefore },
+    items: <any>items,
+  };
+};

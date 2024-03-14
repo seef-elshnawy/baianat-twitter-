@@ -10,6 +10,8 @@ import { Hashtag } from '../entities/hashtag.entity';
 import { FileUpload } from 'graphql-upload';
 import { createWriteStream } from 'fs';
 import { join } from 'path';
+import { User } from 'src/user/entities/user.entity';
+import { tweetType } from '../tweet.enum';
 
 @Injectable()
 export class TweetService {
@@ -67,7 +69,7 @@ export class TweetService {
 
   async findAll(page: number, limit: number) {
     const values = await this.tweetRepo.findPaginated({}, page, limit);
-    return values
+    return values;
   }
 
   async findOne(id: number) {
@@ -108,5 +110,29 @@ export class TweetService {
           }),
       );
     });
+  }
+  async TimeLine(user: User, page:number, limit:number) {
+    const tweet = await this.tweetRepo.findAll();
+
+    const normalTweet= tweet.filter(l=> l.tweet_type===tweetType.TWEET).sort((tweetA, tweetB) => {
+      const tweetUserIFollowA = user.Followings.includes(tweetA.userId);
+      const tweetUserIFollowB = user.Followings.includes(tweetB.userId);
+      if (tweetUserIFollowA === tweetUserIFollowB) {
+        return 0;
+      }
+      if (tweetUserIFollowA) {
+        return -1;
+      }
+      return 1;
+    });
+
+    const adTweet = tweet.filter(l=>l.tweet_type === tweetType.AD)
+    const newsTweet = tweet.filter(l=>l.tweet_type === tweetType.NEWS)
+
+    const selectNormalTweet = normalTweet.slice(0, (3/5)*limit)
+    const selectAdTweet = adTweet.slice(0, (1/5)*limit)
+    const selectNewsTweet = newsTweet.slice(0, (1/5)*limit)
+    const MixedPost = selectNormalTweet.concat(selectAdTweet, selectNewsTweet)
+    return MixedPost
   }
 }

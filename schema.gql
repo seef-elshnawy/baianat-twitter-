@@ -89,6 +89,7 @@ type Tweet {
   retweet: String
   replies: [String!]!
   Tweet_Images: [String!]!
+  tweet_type: String!
 }
 
 type GqlTweetResponse {

@@ -1,5 +1,8 @@
 import { Includeable, Transaction, WhereOptions } from 'sequelize';
-import { PaginationRes } from '../paginator/paginator.types';
+import {
+  CursorBasedPaginationArgsType,
+  PaginationRes,
+} from '../paginator/paginator.types';
 
 export interface IRepository<T> {
   findOne(
@@ -24,6 +27,9 @@ export interface IRepository<T> {
     items: T[],
     page: number,
     limit: number,
+  ): Promise<PaginationRes<T>>;
+  findPaginateCursor<T>(
+    args: CursorBasedPaginationArgsType,
   ): Promise<PaginationRes<T>>;
   sumField(
     field: keyof T,

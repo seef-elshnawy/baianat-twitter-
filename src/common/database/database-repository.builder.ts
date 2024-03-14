@@ -7,7 +7,10 @@ import {
   Transaction,
   Includeable,
 } from 'sequelize';
-import { PaginationRes } from '../paginator/paginator.types';
+import {
+  CursorBasedPaginationArgsType,
+  PaginationRes,
+} from '../paginator/paginator.types';
 
 export function buildRepository(Model: MyModelStatic): any {
   @Global()
@@ -46,10 +49,10 @@ export function buildRepository(Model: MyModelStatic): any {
     }
     async findPaginated(
       where: WhereOptions = {},
-      page: number=0,
-      limit: number=15,
-      sort: any = "-createdAt",
-      include: Includeable[]=[],
+      page: number = 0,
+      limit: number = 15,
+      sort: any = '-createdAt',
+      include: Includeable[] = [],
     ): Promise<PaginationRes<MyModel>> {
       return await (Model as MyModelStatic & { paginate: any }).paginate(
         where,
@@ -67,6 +70,13 @@ export function buildRepository(Model: MyModelStatic): any {
       return await (
         Model as MyModelStatic & { paginateManually: any }
       ).paginateManually(items, page, limit);
+    }
+    async findPaginateCursor<T>(
+      args: CursorBasedPaginationArgsType,
+    ): Promise<PaginationRes<T>> {
+      return await (
+        Model as MyModelStatic & { paginateCursor: any }
+      ).paginateCursor(args);
     }
     async sumField(
       field: keyof MyModel,
