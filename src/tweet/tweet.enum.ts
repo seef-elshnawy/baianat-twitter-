@@ -6,4 +6,4 @@ export enum tweetType {
   TWEET = 'TWEET',
 }
 
-registerEnumType(tweetType, { name: 'tweetEnum' });
+registerEnumType(tweetType, { name: 'tweetType' });

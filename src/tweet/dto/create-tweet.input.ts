@@ -1,5 +1,6 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { tweetType } from '../tweet.enum';
 
 @InputType()
 export class CreateTweetInput {
@@ -11,4 +12,9 @@ export class CreateTweetInput {
   @IsString()
   @Field(() => Array(String), { nullable: true })
   hashtag?: string[];
+
+  @IsNotEmpty()
+  @IsString()
+  @Field(() => tweetType)
+  tweet_type: tweetType
 }

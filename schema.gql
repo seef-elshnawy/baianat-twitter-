@@ -2,6 +2,15 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type PageInfo {
+  page: Int
+  limit: Int!
+  nextCursor: String
+  beforeCursor: String
+  hasNext: Boolean!
+  hasBefore: Boolean!
+}
+
 type SecurityGroup {
   id: ID!
   groupName: String!
@@ -43,13 +52,6 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
-type PageInfo {
-  page: Int
-  limit: Int!
-  hasNext: Boolean!
-  hasBefore: Boolean!
-}
-
 type GqlStringResponse {
   data: String
   message: String!
@@ -89,7 +91,14 @@ type Tweet {
   retweet: String
   replies: [String!]!
   Tweet_Images: [String!]!
-  tweet_type: String!
+  tweet_type: tweetType!
+  love: [String!]!
+}
+
+enum tweetType {
+  AD
+  NEWS
+  TWEET
 }
 
 type GqlTweetResponse {
@@ -125,6 +134,12 @@ type Query {
   getUsers(page: Float!, limit: Float!): GqlUsersResponse!
   tweet(id: Int!): Tweet!
   getAllTweets(page: Float!, limit: Float!): GqlTweetsResponse!
+  TimeLine(limit: Float!, cursor: String!, direction: CursorBasedPaginationDirection!): GqlTweetsResponse!
+}
+
+enum CursorBasedPaginationDirection {
+  BEFORE
+  AFTER
 }
 
 type Mutation {
@@ -136,6 +151,8 @@ type Mutation {
   createTweet(createTweetInput: CreateTweetInput!): GqlTweetResponse!
   Retweet(tweetId: String!, createTweetInput: CreateTweetInput!): GqlTweetResponse!
   Reply(tweetId: String!, input: CreateTweetInput!): GqlTweetResponse!
+  Love(tweetId: String!): GqlBooleanResponse!
+  UnLove(tweetId: String!): GqlBooleanResponse!
   updateTweet(updateTweetInput: UpdateTweetInput!): Tweet!
   removeTweet(id: Int!): Tweet!
   createSecuritygroup(input: CreateSecurityGroupInput!): GqlSecurityGroupResponse!
@@ -171,11 +188,13 @@ input UserSignIn {
 input CreateTweetInput {
   tweet: String!
   hashtag: [String!]
+  tweet_type: tweetType!
 }
 
 input UpdateTweetInput {
   tweet: String
   hashtag: [String!]
+  tweet_type: tweetType
   id: Int!
 }
 

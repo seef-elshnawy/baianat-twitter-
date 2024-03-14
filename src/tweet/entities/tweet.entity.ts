@@ -68,13 +68,20 @@ export class Tweet extends Model {
   @Field(() => Array(String))
   Tweet_Images: string[];
 
-  @Field(() => String)
+  @Field(() => tweetType)
   @AllowNull(false)
   @Default(tweetType.TWEET)
   @Column({
     type: getCoulmnEnum(tweetType),
   })
   tweet_type: tweetType;
+
+  @Field(() => Array(String))
+  @Default([])
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+  })
+  love: string[];
 
   @BelongsTo(() => User, 'userId')
   user: User;

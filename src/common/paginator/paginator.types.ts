@@ -38,11 +38,18 @@ export abstract class PageInfo {
   @Field((type) => Int)
   limit: number;
 
+  @Field((type) => String, { nullable: true })
+  nextCursor?: string;
+
+  @Field((type) => String, { nullable: true })
+  beforeCursor?: string;
+  
   @Field((type) => Boolean)
   hasNext: boolean;
 
   @Field((type) => Boolean)
   hasBefore: boolean;
+
 }
 
 export interface CursorBasedPaginationArgsType {

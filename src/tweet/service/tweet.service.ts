@@ -12,6 +12,8 @@ import { createWriteStream } from 'fs';
 import { join } from 'path';
 import { User } from 'src/user/entities/user.entity';
 import { tweetType } from '../tweet.enum';
+import { CursorBasedPaginationDirection } from 'src/common/paginator/paginator.types';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class TweetService {
@@ -28,11 +30,13 @@ export class TweetService {
         tweet: input.tweet,
         userId,
         Tweet_Images: [image],
+        tweet_type: input.tweet_type,
       });
     } else {
       tweet = await this.tweetRepo.createOne({
         tweet: input.tweet,
         userId,
+        tweet_type: input.tweet_type,
       });
     }
     if (input.hashtag) {
@@ -56,6 +60,10 @@ export class TweetService {
 
   async addReply(tweetId: string, input: CreateTweetInput, userId: string) {
     const tweet = await this.tweetRepo.findOne({ id: tweetId });
+    if (tweet.tweet_type === tweetType.NEWS || tweetType.AD)
+      throw new BaseHttpException(
+        ErrorCodeEnum.YOU_CANT_ADD_REPLY_OR_RETWEET_TO_ADS_AND_NEWS,
+      );
     if (!tweet) throw new BaseHttpException(ErrorCodeEnum.TWEET_NOT_FOUND);
     const reply = await this.tweetRepo.createOne({
       tweet: input.tweet,
@@ -65,6 +73,25 @@ export class TweetService {
     const replies = tweet.replies.concat(reply.id);
     tweet.update({ replies });
     return reply;
+  }
+  async Love(tweetId: string, userId: string) {
+    const tweet = await this.tweetRepo.findOne({ id: tweetId });
+    if (tweet.tweet_type === tweetType.AD)
+      throw new BaseHttpException(ErrorCodeEnum.YOU_CANT_LIKE_AD);
+    if (!tweet) throw new BaseHttpException(ErrorCodeEnum.TWEET_NOT_FOUND);
+    tweet.love = tweet.love.concat(userId);
+    await tweet.save();
+    return true;
+  }
+
+  async UnLove(tweetId: string, userId: string) {
+    const tweet = await this.tweetRepo.findOne({ id: tweetId });
+    if (!tweet) throw new BaseHttpException(ErrorCodeEnum.TWEET_NOT_FOUND);
+    if (!tweet.love.includes(userId))
+      return new BaseHttpException(ErrorCodeEnum.YOU_DONT_LIKE_THIS_TWEET);
+    tweet.love = tweet.love.filter((l) => l !== userId);
+    await tweet.save();
+    return true;
   }
 
   async findAll(page: number, limit: number) {
@@ -111,28 +138,72 @@ export class TweetService {
       );
     });
   }
-  async TimeLine(user: User, page:number, limit:number) {
-    const tweet = await this.tweetRepo.findAll();
-
-    const normalTweet= tweet.filter(l=> l.tweet_type===tweetType.TWEET).sort((tweetA, tweetB) => {
-      const tweetUserIFollowA = user.Followings.includes(tweetA.userId);
-      const tweetUserIFollowB = user.Followings.includes(tweetB.userId);
-      if (tweetUserIFollowA === tweetUserIFollowB) {
-        return 0;
-      }
-      if (tweetUserIFollowA) {
-        return -1;
-      }
-      return 1;
+  async TimeLine(
+    user: User,
+    limit: number,
+    cursor: string,
+    direction: CursorBasedPaginationDirection,
+  ) {
+    const tweet = await this.tweetRepo.findPaginateCursor<Tweet>({
+      model: Tweet,
+      filter: {},
+      cursor,
+      limit,
+      direction,
     });
+    const normalTweet = tweet.items
+      .filter((l) => l.tweet_type === tweetType.TWEET)
+      .sort((tweetA, tweetB) => {
+        const tweetUserIFollowA = user.Followings.includes(tweetA.userId);
+        const tweetUserIFollowB = user.Followings.includes(tweetB.userId);
+        if (tweetUserIFollowA === tweetUserIFollowB) {
+          return 0;
+        }
+        if (tweetUserIFollowA) {
+          return -1;
+        }
+        return 1;
+      });
 
-    const adTweet = tweet.filter(l=>l.tweet_type === tweetType.AD)
-    const newsTweet = tweet.filter(l=>l.tweet_type === tweetType.NEWS)
+    const adTweet = tweet.items?.filter((l) => l.tweet_type === tweetType.AD);
+    const newsTweet = tweet.items?.filter(
+      (l) => l.tweet_type === tweetType.NEWS,
+    );
 
-    const selectNormalTweet = normalTweet.slice(0, (3/5)*limit)
-    const selectAdTweet = adTweet.slice(0, (1/5)*limit)
-    const selectNewsTweet = newsTweet.slice(0, (1/5)*limit)
-    const MixedPost = selectNormalTweet.concat(selectAdTweet, selectNewsTweet)
-    return MixedPost
+    const tweetTypeFormat = [
+      tweetType.TWEET,
+      tweetType.TWEET,
+      tweetType.TWEET,
+      tweetType.NEWS,
+      tweetType.AD,
+    ];
+    let filteredTweet = [];
+    for (const tweetTypes of tweetTypeFormat) {
+      let tweetToAdd;
+      switch (tweetTypes) {
+        case 'TWEET':
+          tweetToAdd = normalTweet.pop();
+          break;
+        case 'AD':
+          tweetToAdd = adTweet.pop();
+          break;
+        case 'NEWS':
+          tweetToAdd = newsTweet.pop();
+          break;
+        default:
+          break;
+      }
+      if (!tweetToAdd) {
+        tweetToAdd = normalTweet.pop();
+      }
+      if (tweetToAdd) {
+        filteredTweet.push(tweetToAdd);
+      }
+    }
+    const result = {
+      items: filteredTweet,
+      pageInfo: tweet.pageInfo,
+    };
+    return result;
   }
 }

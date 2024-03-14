@@ -151,7 +151,6 @@ export const CursourPagination = async <T>(
     logging: true,
     raw: true,
   });
-
   let hasNext = items.length === args.limit + 1,
     hasBefore = items.length === args.limit + 1,
     nextCursor = null,

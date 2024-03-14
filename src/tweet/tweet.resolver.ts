@@ -7,6 +7,10 @@ import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { GqlTweetPaginateResponse, GqlTweetResponse } from './tweet.response';
+import { User } from 'src/user/entities/user.entity';
+import { Arg } from 'type-graphql';
+import { TimeLineInput } from './dto/timeline.dto';
+import { GqlBooleanResponse } from 'src/common/graphql/graphql-response-type';
 
 @Resolver(() => Tweet)
 export class TweetResolver {
@@ -18,6 +22,7 @@ export class TweetResolver {
     @Args('createTweetInput') createTweetInput: CreateTweetInput,
     @CurrentUser('id') userId: string,
   ) {
+    console.log(createTweetInput.tweet_type);
     return this.tweetService.addTweet(createTweetInput, userId);
   }
 
@@ -41,6 +46,24 @@ export class TweetResolver {
     return await this.tweetService.addReply(tweetId, createTweetInput, userId);
   }
 
+  @UseGuards(AuthGuard)
+  @Mutation(() => GqlBooleanResponse)
+  async Love(
+    @Args('tweetId') tweetId: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return await this.tweetService.Love(tweetId, userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => GqlBooleanResponse)
+  async UnLove(
+    @Args('tweetId') tweetId: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return await this.tweetService.UnLove(tweetId, userId);
+  }
+
   @Query(() => Tweet, { name: 'tweet' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.tweetService.findOne(id);
@@ -58,5 +81,16 @@ export class TweetResolver {
   @Query(() => GqlTweetPaginateResponse)
   async getAllTweets(@Args('page') page: number, @Args('limit') limit: number) {
     return await this.tweetService.findAll(page, limit);
+  }
+
+  @UseGuards(AuthGuard)
+  @Query(() => GqlTweetPaginateResponse)
+  async TimeLine(@CurrentUser() user: User, @Args() input: TimeLineInput) {
+    return await this.tweetService.TimeLine(
+      user,
+      input.limit,
+      input.cursor,
+      input.direction,
+    );
   }
 }
