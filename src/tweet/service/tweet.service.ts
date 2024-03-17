@@ -151,20 +151,22 @@ export class TweetService {
       limit,
       direction,
     });
-    const normalTweet = tweet.items
-      .filter((l) => l.tweet_type === tweetType.TWEET)
-      .sort((tweetA, tweetB) => {
-        const tweetUserIFollowA = user.Followings.includes(tweetA.userId);
-        const tweetUserIFollowB = user.Followings.includes(tweetB.userId);
-        if (tweetUserIFollowA === tweetUserIFollowB) {
-          return 0;
-        }
-        if (tweetUserIFollowA) {
-          return -1;
-        }
-        return 1;
-      });
 
+    const normalTweet = tweet.items.filter(
+      (l) => l.tweet_type === tweetType.TWEET,
+    ); // O(n)
+    const tweetUserIFollow = [];
+    const otherTweets = [];
+    let allTweets = [];
+    // O(n * m)
+    for (const tweets of normalTweet) {
+      if (user.Followings.includes(tweets.userId)) {
+        tweetUserIFollow.push(tweets);
+      } else {
+        otherTweets.push(tweets);
+      }
+    }
+    allTweets = allTweets.concat(tweetUserIFollow, otherTweets);
     const adTweet = tweet.items?.filter((l) => l.tweet_type === tweetType.AD);
     const newsTweet = tweet.items?.filter(
       (l) => l.tweet_type === tweetType.NEWS,
@@ -178,11 +180,12 @@ export class TweetService {
       tweetType.AD,
     ];
     let filteredTweet = [];
+    // O(5)
     for (const tweetTypes of tweetTypeFormat) {
       let tweetToAdd;
       switch (tweetTypes) {
         case 'TWEET':
-          tweetToAdd = normalTweet.pop();
+          tweetToAdd = allTweets.pop();
           break;
         case 'AD':
           tweetToAdd = adTweet.pop();
@@ -194,7 +197,7 @@ export class TweetService {
           break;
       }
       if (!tweetToAdd) {
-        tweetToAdd = normalTweet.pop();
+        tweetToAdd = allTweets.pop();
       }
       if (tweetToAdd) {
         filteredTweet.push(tweetToAdd);
@@ -204,6 +207,7 @@ export class TweetService {
       items: filteredTweet,
       pageInfo: tweet.pageInfo,
     };
+    console.log(result, 'results');
     return result;
   }
 }

@@ -12,6 +12,7 @@ import { PaginatorInput } from 'src/common/paginator/paginator.input';
 import { HelpService } from 'src/common/utils/helper.service';
 import { SecurityGroup } from 'src/security-group/entities/security-group.entity';
 import { UserVerificationCode } from '../entities/user-verification-code.entity';
+import { Category } from '../entities/category.entity';
 
 @Injectable()
 export class UserService {
@@ -21,6 +22,7 @@ export class UserService {
     private helper: HelpService,
     @Inject(Repository.SecurityGroupRepository)
     private securityGroupRepo: IRepository<SecurityGroup>,
+    @Inject(Repository.CategoryRepository) private categoryRepo: IRepository<Category>
   ) {}
   async usersBoard(
     filter: UserBoardFilter = {},
@@ -164,4 +166,10 @@ export class UserService {
     );
     return true;
   }
+
+  async addCategory(categoryName:string){
+    const category = await this.categoryRepo.createOne({category: categoryName})
+    return category
+  }
+
 }

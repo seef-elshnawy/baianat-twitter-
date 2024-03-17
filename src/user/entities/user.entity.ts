@@ -20,6 +20,7 @@ import { GenderEnum, langEnum } from '../user.enum';
 import { getCoulmnEnum } from 'src/common/utils/coulmnEnum';
 import { UserVerificationCode } from './user-verification-code.entity';
 import { SecurityGroup } from 'src/security-group/entities/security-group.entity';
+import { Category } from './category.entity';
 
 @ObjectType()
 @Table({ tableName: 'User', timestamps: true })
@@ -127,16 +128,31 @@ export class User extends Model {
   @Column
   @Field()
   isBlocked: boolean;
-  
+
   @Default([])
   @AllowNull(true)
-  @Column({ type:DataType.ARRAY(DataType.STRING) })
+  @Column({ type: DataType.ARRAY(DataType.STRING) })
   Followers: string[];
 
   @Default([])
   @AllowNull(true)
   @Column({ type: DataType.ARRAY(DataType.STRING) })
   Followings: string[];
+
+  @ForeignKey(() => Category)
+  @Column({
+    type: DataType.UUID,
+  })
+  account_category: string;
+
+  @ForeignKey(() => Category)
+  @Column({
+    type: DataType.UUID,
+  })
+  Interests: string[];
+
+  @BelongsTo(() => Category, 'Interests')
+  category: Category[];
 
   static async paginate(
     filter = {},

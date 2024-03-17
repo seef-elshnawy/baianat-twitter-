@@ -6,6 +6,7 @@ import { SecurityGroup } from 'src/security-group/entities/security-group.entity
 import { TweetHashtag } from 'src/tweet/entities/tweetHash.entity';
 import { Hashtag } from 'src/tweet/entities/hashtag.entity';
 import { Tweet } from 'src/tweet/entities/tweet.entity';
+import { Category } from 'src/user/entities/category.entity';
 
 export const model = [
   User,
@@ -14,6 +15,7 @@ export const model = [
   TweetHashtag,
   Hashtag,
   Tweet,
+  Category
 ];
 export const repositories = model.map((m) => ({
   provide: `${plural(m.name)}Repository`,

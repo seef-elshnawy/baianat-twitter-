@@ -10,6 +10,8 @@ import { authTokenPayload } from 'src/auth/dto/auth-token-payload';
 import { Repository } from 'src/common/database/database-repository.enum';
 import { IRepository } from 'src/common/database/repository.interface';
 import { SecurityGroup } from 'src/security-group/entities/security-group.entity';
+import { langEnum } from 'src/user/user.enum';
+import { isISO31661Alpha2 } from 'class-validator';
 @Injectable()
 export class ContextService implements IContextAuthService {
   constructor(
@@ -17,6 +19,14 @@ export class ContextService implements IContextAuthService {
     @Inject(Repository.UserRepository)
     private readonly userRepo: IRepository<User>,
   ) {}
+  getLocale(req: Request): { lang: langEnum; country: string } {
+    if (!req) return { lang: langEnum.AR, country: 'EG' };
+    let locale = <string>req.headers.lang || 'eg-en';
+    let country = locale.split('-')[0].toUpperCase();
+    if (!country || !isISO31661Alpha2(country)) country = 'EG';
+    let lang = locale.split('-')[1] === 'ar' ? langEnum.AR : langEnum.EN;
+    return { lang, country };
+  }
   getAuth(req: Request): string {
     if (
       req &&
@@ -40,7 +50,7 @@ export class ContextService implements IContextAuthService {
     let { userId } = <authTokenPayload>(
       (<unknown>jwt.verify(token, this.config.get('JWT_SECRET')))
     );
-    if(!userId) return null
+    if (!userId) return null;
     const user = await this.userRepo.findOne({ id: userId }, [SecurityGroup]);
     return user ? (user.toJSON() as User) : null;
   }

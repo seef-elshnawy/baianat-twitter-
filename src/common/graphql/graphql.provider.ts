@@ -33,12 +33,14 @@ export class GqlConfigService implements GqlOptionsFactory {
           currentUser = await this.authService.getUserFromReqHeaders(
             <Request>req,
           );
+        let locale = this.authService.getLocale(req);
         const token = await this.authService.getAuth(req);
         return {
           req,
           currentUser,
           token,
           loaders: this.dataloaderService.createLoaders(),
+          lang: locale.lang,
         };
       },
     };

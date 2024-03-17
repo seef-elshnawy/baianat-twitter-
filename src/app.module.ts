@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { TweetModule } from './tweet/tweet.module';
@@ -14,11 +14,12 @@ import { SecurityGroupModule } from './security-group/security-group.module';
 import { ContextModule } from './context/context.module';
 import { GqlConfigService } from './common/graphql/graphql.provider';
 import { Timestamp } from './common/graphql/timestamp.scalar';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { GqlResponseInterceptor } from './common/graphql/graphql-response.interceptor';
 import { MailModule } from './mail/mail.module';
 import { TwilloModule } from './twilio/twillo.module';
 import { DataloaderModule } from './common/dataloader/dataloader.module';
+import { HttpExceptionFilter } from './common/exception/exception-filter';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { DataloaderModule } from './common/dataloader/dataloader.module';
   ],
   providers: [
     Timestamp,
+    { provide: APP_FILTER, useClass: HttpExceptionFilter },
     {
       provide: APP_INTERCEPTOR,
       useClass: GqlResponseInterceptor,
