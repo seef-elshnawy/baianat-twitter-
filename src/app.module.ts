@@ -20,6 +20,7 @@ import { MailModule } from './mail/mail.module';
 import { TwilloModule } from './twilio/twillo.module';
 import { DataloaderModule } from './common/dataloader/dataloader.module';
 import { HttpExceptionFilter } from './common/exception/exception-filter';
+import { LoggerModule } from './common/logger/logger.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { HttpExceptionFilter } from './common/exception/exception-filter';
     DatabaseModule,
     AuthModule,
     UserModule,
+    LoggerModule,
     TweetModule,
     CommonModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({

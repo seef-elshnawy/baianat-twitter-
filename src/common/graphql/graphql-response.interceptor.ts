@@ -8,6 +8,7 @@ import { IGqlSucessResponse } from './graphql-response-type';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { User } from 'src/user/entities/user.entity';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class GqlResponseInterceptor<T>
