@@ -14,6 +14,8 @@ import { SecurityGroup } from 'src/security-group/entities/security-group.entity
 import { UserVerificationCode } from '../entities/user-verification-code.entity';
 import { Category } from '../entities/category.entity';
 import { MailService } from 'src/mail/service/mail.service';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
 
 @Injectable()
 export class UserService {
@@ -25,7 +27,7 @@ export class UserService {
     private securityGroupRepo: IRepository<SecurityGroup>,
     @Inject(Repository.CategoryRepository)
     private categoryRepo: IRepository<Category>,
-    private mailService: MailService,
+    @InjectQueue('user') private userQueue: Queue,
   ) {}
   async usersBoard(
     filter: UserBoardFilter = {},
@@ -179,8 +181,15 @@ export class UserService {
     });
     return category;
   }
-  async sendMailToUsers(user:User) {
-    await this.mailService.sendEmailToAllUser(user);
+  async sendMailToUsers() {
+    const users = await this.userRepo.findAll({
+      VerifiedEmail: { [Op.ne]: null },
+    });
+     users.forEach(async user=>{
+      await this.userQueue.add('sendEmails',{
+       user
+      })
+     })
     return true;
   }
 }

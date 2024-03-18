@@ -8,10 +8,31 @@ import { UserVerificationCodeService } from './Service/user-verification-code.se
 import { UserDataLoader } from './user.loader';
 import { MailService } from 'src/mail/service/mail.service';
 import { MailModule } from 'src/mail/mail.module';
+import { BullModule } from '@nestjs/bull';
+import { UserConsumer } from './user.consumer';
 
 @Module({
-  imports: [HelperModule,MailModule],
-  providers: [UserResolver, UserService, UserTransformer,UserVerificationCodeService, UserDataLoader],
-  exports: [UserService, UserTransformer, UserVerificationCodeService, UserDataLoader],
+  imports: [
+    HelperModule,
+    MailModule,
+    BullModule.registerQueue({
+      configKey: 'config_queue',
+      name: 'user',
+    }),
+  ],
+  providers: [
+    UserResolver,
+    UserService,
+    UserTransformer,
+    UserVerificationCodeService,
+    UserDataLoader,
+    UserConsumer
+  ],
+  exports: [
+    UserService,
+    UserTransformer,
+    UserVerificationCodeService,
+    UserDataLoader,
+  ],
 })
 export class UserModule {}

@@ -22,6 +22,7 @@ import { DataloaderModule } from './common/dataloader/dataloader.module';
 import { HttpExceptionFilter } from './common/exception/exception-filter';
 import { LoggerModule } from './common/logger/logger.module';
 import { AppConfigrationModule } from './app-configration/app-configration.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -36,6 +37,12 @@ import { AppConfigrationModule } from './app-configration/app-configration.modul
       driver: ApolloDriver,
       useClass: GqlConfigService,
       imports: [ContextModule, DataloaderModule],
+    }),
+    BullModule.forRoot('config_queue', {
+      redis: {
+        host: 'localhost',
+        port: 6379,
+      },
     }),
     SecurityGroupModule,
     MailModule,

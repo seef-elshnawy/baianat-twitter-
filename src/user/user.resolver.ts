@@ -20,6 +20,8 @@ import { HasPremissons } from 'src/auth/auth.metadata';
 import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { GqlBooleanResponse } from 'src/common/graphql/graphql-response-type';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -51,8 +53,8 @@ export class UserResolver {
 
   @HasPremissons(UserPermissionsEnum.SEND_EMAILS)
   @UseGuards(PremissonGuard)
-  @Mutation(()=> GqlBooleanResponse)
-  async sendMailToUsers(@CurrentUser() user:User) {
-    return await this.userService.sendMailToUsers(user);
+  @Mutation(() => GqlBooleanResponse)
+  async sendMailToUsers(@CurrentUser() user: User) {
+    return await this.userService.sendMailToUsers();
   }
 }
