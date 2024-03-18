@@ -182,14 +182,16 @@ export class UserService {
     return category;
   }
   async sendMailToUsers() {
-    const users = await this.userRepo.findAll({
-      VerifiedEmail: { [Op.ne]: null },
-    });
-    users.forEach(async (user) => {
-      await this.userQueue.add('sendEmails', {
-        email: user.VerifiedEmail,
-        firstName: user.firstName,
-      });
+    const users = await this.userRepo.findAll(
+      {
+        VerifiedEmail: { [Op.ne]: null },
+      },
+      [],
+      '',
+      ['VerifiedEmail', 'firstName'],
+    );
+    await this.userQueue.add('user', {
+      users,
     });
     return true;
   }
