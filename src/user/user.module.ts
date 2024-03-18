@@ -6,9 +6,11 @@ import { UserTransformer } from './transformer/user.transformer';
 import { SecurityGroupModule } from 'src/security-group/security-group.module';
 import { UserVerificationCodeService } from './Service/user-verification-code.service';
 import { UserDataLoader } from './user.loader';
+import { MailService } from 'src/mail/service/mail.service';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
-  imports: [HelperModule],
+  imports: [HelperModule,MailModule],
   providers: [UserResolver, UserService, UserTransformer,UserVerificationCodeService, UserDataLoader],
   exports: [UserService, UserTransformer, UserVerificationCodeService, UserDataLoader],
 })

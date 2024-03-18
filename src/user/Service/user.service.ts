@@ -13,6 +13,7 @@ import { HelpService } from 'src/common/utils/helper.service';
 import { SecurityGroup } from 'src/security-group/entities/security-group.entity';
 import { UserVerificationCode } from '../entities/user-verification-code.entity';
 import { Category } from '../entities/category.entity';
+import { MailService } from 'src/mail/service/mail.service';
 
 @Injectable()
 export class UserService {
@@ -22,7 +23,9 @@ export class UserService {
     private helper: HelpService,
     @Inject(Repository.SecurityGroupRepository)
     private securityGroupRepo: IRepository<SecurityGroup>,
-    @Inject(Repository.CategoryRepository) private categoryRepo: IRepository<Category>
+    @Inject(Repository.CategoryRepository)
+    private categoryRepo: IRepository<Category>,
+    private mailService: MailService,
   ) {}
   async usersBoard(
     filter: UserBoardFilter = {},
@@ -155,7 +158,10 @@ export class UserService {
       throw new BaseHttpException(ErrorCodeEnum.USER_DOES_NOT_EXIST);
     let followings: string[] = me.Followings.concat(targetUser.id);
     let followers: string[] = targetUser.Followers.concat(me.id);
-    if (me.Followings.includes(targetUser.id) || targetUser.Followers.includes(me.id))
+    if (
+      me.Followings.includes(targetUser.id) ||
+      targetUser.Followers.includes(me.id)
+    )
       throw new BaseHttpException(ErrorCodeEnum.ALREADY_FOLLOW_THIS_USER);
     await targetUser.update({
       Followers: followers ? followers : [me.id],
@@ -167,9 +173,14 @@ export class UserService {
     return true;
   }
 
-  async addCategory(categoryName:string){
-    const category = await this.categoryRepo.createOne({category: categoryName})
-    return category
+  async addCategory(categoryName: string) {
+    const category = await this.categoryRepo.createOne({
+      category: categoryName,
+    });
+    return category;
   }
-
+  async sendMailToUsers(user:User) {
+    await this.mailService.sendEmailToAllUser(user);
+    return true;
+  }
 }

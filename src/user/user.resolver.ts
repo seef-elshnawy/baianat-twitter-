@@ -39,7 +39,7 @@ export class UserResolver {
   ) {
     return await dataloader.userLoader.load(user.id);
   }
-  
+
   @UseGuards(AuthGuard)
   @Mutation(() => GqlBooleanResponse)
   async addFollow(
@@ -47,5 +47,12 @@ export class UserResolver {
     @Args('targetUserId') targetUserId: string,
   ) {
     return await this.userService.addFollow(user, targetUserId);
+  }
+
+  @HasPremissons(UserPermissionsEnum.SEND_EMAILS)
+  @UseGuards(PremissonGuard)
+  @Mutation(()=> GqlBooleanResponse)
+  async sendMailToUsers(@CurrentUser() user:User) {
+    return await this.userService.sendMailToUsers(user);
   }
 }

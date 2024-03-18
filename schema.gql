@@ -176,6 +176,7 @@ type Mutation {
   signInUsingEmail(input: UserSignIn!): GqlStringResponse!
   validatePhoneNumber(phone: String!): GqlStringResponse!
   addFollow(targetUserId: String!): GqlBooleanResponse!
+  sendMailToUsers: GqlBooleanResponse!
   createTweet(createTweetInput: CreateTweetInput!): GqlTweetResponse!
   Retweet(tweetId: String!, createTweetInput: CreateTweetInput!): GqlTweetResponse!
   Reply(tweetId: String!, input: CreateTweetInput!): GqlTweetResponse!

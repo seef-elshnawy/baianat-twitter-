@@ -15,7 +15,7 @@ import { UserVerificationCodeService } from 'src/user/Service/user-verification-
 import { RegisterInput } from 'src/user/dto/register.input';
 import { UserVerificationCodeUseCaseEnum, langEnum } from 'src/user/user.enum';
 import { UserTransformer } from 'src/user/transformer/user.transformer';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from 'src/mail/service/mail.service';
 import { UserValideOtp } from 'src/user/dto/user.valide-otp';
 import { UserSignIn } from 'src/user/dto/user.signin';
 import { TwilloService } from 'src/twilio/twillo.service';
@@ -88,7 +88,10 @@ export class AuthService {
       expiryDate: code.expiryDateAfterOneHour,
       useCase: UserVerificationCodeUseCaseEnum.EMAIL_VERIFICATION,
     });
-    return jwt.sign({ email: user.notVerifiedEmail }, this.configService.get('JWT_SECRET'));
+    return jwt.sign(
+      { email: user.notVerifiedEmail },
+      this.configService.get('JWT_SECRET'),
+    );
   }
 
   async validatePhoneNumber(phone: string) {
@@ -117,7 +120,10 @@ export class AuthService {
     const useCase = UserVerificationCodeUseCaseEnum;
     let user: User;
     //@ts-expect-error
-    const payload: {email?: string, phone?:string} = jwt.verify(token, this.configService.get('JWT_SECRET'))
+    const payload: { email?: string; phone?: string } = jwt.verify(
+      token,
+      this.configService.get('JWT_SECRET'),
+    );
     if (payload.email) {
       user = await this.userRepo.findOne({
         notVerifiedEmail: payload.email,

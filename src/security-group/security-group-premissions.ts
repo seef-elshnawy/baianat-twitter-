@@ -5,6 +5,7 @@ export enum UserPermissionsEnum {
   UPDATE_USERS = 'UPDATE_USERS',
   CREATE_USERS = 'CREATE_USERS',
   DELETE_USERS = 'DELETE_USERS',
+  SEND_EMAILS = 'SEND_EMAILS',
 }
 
 export enum SecurityGroupPermissionsEnum {
