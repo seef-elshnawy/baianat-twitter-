@@ -23,14 +23,11 @@ export class MailService {
     });
   }
 
-  async sendEmailToAllUser(user: User, message?) {
+  async sendEmailToAllUser(email: string, firstName:string) {
     await this.mailService.sendMail({
-      to: user.VerifiedEmail,
-      subject: `hello ${user.firstName}`,
+      to: email,
+      subject: `hello ${firstName}`,
       template: './promotions',
-      context: {
-        user,
-      },
     });
   }
 }

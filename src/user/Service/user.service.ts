@@ -185,11 +185,12 @@ export class UserService {
     const users = await this.userRepo.findAll({
       VerifiedEmail: { [Op.ne]: null },
     });
-     users.forEach(async user=>{
-      await this.userQueue.add('sendEmails',{
-       user
-      })
-     })
+    users.forEach(async (user) => {
+      await this.userQueue.add('sendEmails', {
+        email: user.VerifiedEmail,
+        firstName: user.firstName,
+      });
+    });
     return true;
   }
 }

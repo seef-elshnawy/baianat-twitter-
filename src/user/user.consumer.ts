@@ -8,8 +8,11 @@ export class UserConsumer {
   constructor(private mailService: MailService) {}
 
   @Process('sendEmails')
-  async sendEmails(job: Job<{ user: User }>) {
-    await this.mailService.sendEmailToAllUser(job.data.user);
-    return true
+  async sendEmails(job: Job<{ email: string; firstName: string }>) {
+    await this.mailService.sendEmailToAllUser(
+      job.data.email,
+      job.data.firstName,
+    );
+    return true;
   }
 }
