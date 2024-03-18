@@ -21,6 +21,7 @@ import { TwilloModule } from './twilio/twillo.module';
 import { DataloaderModule } from './common/dataloader/dataloader.module';
 import { HttpExceptionFilter } from './common/exception/exception-filter';
 import { LoggerModule } from './common/logger/logger.module';
+import { AppConfigrationModule } from './app-configration/app-configration.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { LoggerModule } from './common/logger/logger.module';
     MailModule,
     TwilloModule,
     DataloaderModule,
+    AppConfigrationModule,
   ],
   providers: [
     Timestamp,

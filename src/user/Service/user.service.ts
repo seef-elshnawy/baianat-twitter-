@@ -153,9 +153,9 @@ export class UserService {
     const targetUser = await this.userRepo.findOne({ id: targetUserId });
     if (!targetUser)
       throw new BaseHttpException(ErrorCodeEnum.USER_DOES_NOT_EXIST);
-    const followings: string[] = me.Followings.concat(targetUser.id);
-    const followers: string[] = targetUser.Followers.concat(me.id);
-    if (followings.includes(targetUser.id) || followers.includes(me.id))
+    let followings: string[] = me.Followings.concat(targetUser.id);
+    let followers: string[] = targetUser.Followers.concat(me.id);
+    if (me.Followings.includes(targetUser.id) || targetUser.Followers.includes(me.id))
       throw new BaseHttpException(ErrorCodeEnum.ALREADY_FOLLOW_THIS_USER);
     await targetUser.update({
       Followers: followers ? followers : [me.id],

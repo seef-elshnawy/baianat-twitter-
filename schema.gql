@@ -120,8 +120,29 @@ type GqlTweetsResponse {
   success: Boolean!
 }
 
+type AppConfigration {
+  id: ID!
+  key: String!
+  value: String!
+  displayAs: String!
+}
+
 type GqlSecurityGroupResponse {
   data: SecurityGroup
+  message: String!
+  code: Int!
+  success: Boolean!
+}
+
+type GqlAppConfigrationResponse {
+  data: AppConfigration
+  message: String!
+  code: Int!
+  success: Boolean!
+}
+
+type GqlAppConfigrationsArrayResponse {
+  data: [AppConfigration]
   message: String!
   code: Int!
   success: Boolean!
@@ -135,11 +156,18 @@ type Query {
   tweet(id: Int!): Tweet!
   getAllTweets(page: Float!, limit: Float!): GqlTweetsResponse!
   TimeLine(limit: Float!, cursor: String!, direction: CursorBasedPaginationDirection!): GqlTweetsResponse!
+  appConfigurationsBoard: GqlAppConfigrationsArrayResponse!
+  appConfigration(input: AppConfigurationInput!): AppConfigration!
 }
 
 enum CursorBasedPaginationDirection {
   BEFORE
   AFTER
+}
+
+input AppConfigurationInput {
+  key: String
+  appConfigurationId: ID
 }
 
 type Mutation {
@@ -160,6 +188,8 @@ type Mutation {
   unAssignSecurityGroupToUser(input: UnAssignSecurityGroupToUsersInput!): GqlBooleanResponse!
   deleteSecurityGroupToUser(securityGroupId: String!): GqlBooleanResponse!
   updateSecurityGroupToUser(input: UpdateSecurityGroupInput!): GqlSecurityGroupResponse!
+  createAppConfigration(input: CreateAppConfigrationInput!): GqlAppConfigrationResponse!
+  updateAppConfigration(input: UpdateAppConfigrationInput!): AppConfigration!
 }
 
 input RegisterInput {
@@ -218,4 +248,17 @@ input UpdateSecurityGroupInput {
   groupName: String
   description: String
   permissions: [String]
+}
+
+input CreateAppConfigrationInput {
+  key: String!
+  value: String!
+  displayAS: String!
+}
+
+input UpdateAppConfigrationInput {
+  key: String!
+  value: String!
+  displayAS: String!
+  appConfigId: String!
 }

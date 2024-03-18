@@ -156,17 +156,12 @@ export class TweetService {
       (l) => l.tweet_type === tweetType.TWEET,
     ); // O(n)
     const tweetUserIFollow = [];
-    const otherTweets = [];
-    let allTweets = [];
     // O(n * m)
     for (const tweets of normalTweet) {
       if (user.Followings.includes(tweets.userId)) {
         tweetUserIFollow.push(tweets);
-      } else {
-        otherTweets.push(tweets);
       }
     }
-    allTweets = allTweets.concat(tweetUserIFollow, otherTweets);
     const adTweet = tweet.items?.filter((l) => l.tweet_type === tweetType.AD);
     const newsTweet = tweet.items?.filter(
       (l) => l.tweet_type === tweetType.NEWS,
@@ -180,34 +175,46 @@ export class TweetService {
       tweetType.AD,
     ];
     let filteredTweet = [];
-    // O(5)
-    for (const tweetTypes of tweetTypeFormat) {
-      let tweetToAdd;
-      switch (tweetTypes) {
-        case 'TWEET':
-          tweetToAdd = allTweets.pop();
-          break;
-        case 'AD':
-          tweetToAdd = adTweet.pop();
-          break;
-        case 'NEWS':
-          tweetToAdd = newsTweet.pop();
-          break;
-        default:
-          break;
+    if (tweetUserIFollow.length > 0) {
+      // O(5)
+      for (const tweetTypes of tweetTypeFormat) {
+        let tweetToAdd;
+        switch (tweetTypes) {
+          case 'TWEET':
+            tweetToAdd = tweetUserIFollow.pop();
+            break;
+          case 'AD':
+            tweetToAdd = adTweet.pop();
+            break;
+          case 'NEWS':
+            tweetToAdd = newsTweet.pop();
+            break;
+          default:
+            break;
+        }
+        if (!tweetToAdd) {
+          tweetToAdd = tweetUserIFollow.pop();
+        }
+        if (tweetToAdd) {
+          filteredTweet.push(tweetToAdd);
+        }
       }
-      if (!tweetToAdd) {
-        tweetToAdd = allTweets.pop();
-      }
-      if (tweetToAdd) {
-        filteredTweet.push(tweetToAdd);
-      }
-    }
-    const result = {
-      items: filteredTweet,
-      pageInfo: tweet.pageInfo,
-    };
-    console.log(result, 'results');
-    return result;
+      const result = {
+        items: filteredTweet,
+        pageInfo: tweet.pageInfo,
+      };
+      return result;
+    } else
+      return {
+        items: [],
+        pageInfo: {
+          page: 1,
+          nextCursor: null,
+          beforeCursor: null,
+          hasNext: false,
+          hasBefore: false,
+          limit,
+        },
+      };
   }
 }

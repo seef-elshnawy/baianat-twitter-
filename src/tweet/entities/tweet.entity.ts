@@ -31,6 +31,7 @@ export class Tweet extends Model {
   @Default(DataType.UUIDV4)
   @Column({ type: DataType.UUID })
   id: string;
+
   @Column({
     type: DataType.STRING,
   })

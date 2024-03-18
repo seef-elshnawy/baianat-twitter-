@@ -6,4 +6,5 @@ export enum Repository {
   HashtagRepository = 'HashtagsRepository',
   TweetHashtagRepository = 'TweetHashtagRepository',
   CategoryRepository = 'CategoriesRepository',
+  AppConfigrationRepository = 'AppConfigrationsRepository',
 }
