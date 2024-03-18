@@ -11,14 +11,14 @@ export const config = (configService: ConfigService) => {
       configService.get('NODE_ENV') === 'test'
         ? configService.get('DATABASE_TEST')
         : configService.get('DATABASE'),
-    host: 'localhost',
+    host: configService.get('DATABASE_HOSTNAME'),
     port: configService.get('DATABASE_PORT'),
-    pool:{
-        max:5,
-        min:0,
-        acquire: 30000,
-        idle: 10000
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
     },
-    models:model,
+    models: model,
   };
 };
