@@ -40,7 +40,7 @@ import { BullModule } from '@nestjs/bull';
     }),
     BullModule.forRoot('config_queue', {
       redis: {
-        host: 'localhost',
+        host: process.env.CACHE_HOSTNAME,
         port: 6379,
       },
     }),
