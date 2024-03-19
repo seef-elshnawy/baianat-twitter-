@@ -10,6 +10,7 @@ import { MailService } from 'src/mail/service/mail.service';
 import { MailModule } from 'src/mail/mail.module';
 import { BullModule } from '@nestjs/bull';
 import { UserConsumer } from './user.consumer';
+import { UserController } from './user.controller';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UserConsumer } from './user.consumer';
     UserDataLoader,
     UserConsumer
   ],
+  controllers:[UserController],
   exports: [
     UserService,
     UserTransformer,
